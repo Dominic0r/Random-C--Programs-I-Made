@@ -56,6 +56,9 @@ int pmnum =11;
 string president = "";
 string primem = "";
 
+string preshistory[100];
+int presidents =0;
+
 string par_president[10] = {"","","","","","","","","",""};
 int yelect =1948;
 int prevpres =11;
@@ -64,6 +67,8 @@ string par_primem[10] = {"","","","","","","","","",""};
 int district = population/25000;
 
 int prime[2];
+
+int counted =0;
 
 string govcoalition[10];
 int govmembers =0;
@@ -141,7 +146,8 @@ string namegen()
 
 void setup()
 {
-    population += (rand()%1000000)- (rand()%1000000);
+    for(int i=0; i!= 100; i++) {preshistory[i]="";}
+    population += (rand()%1000000);
     for(int i=0; i!=10; i++)
     {
         par_ideology[i] = rand()%5;
@@ -161,7 +167,7 @@ void setup()
 
 void update()
 {
-    year+=5;
+    year+=3;
     midterm = !midterm;
     int pad = population*0.1;
     population += rand()%pad+1;
@@ -240,7 +246,7 @@ void polls()
             cout << year << " General Election" << endl;
         }
         cout << endl;
-        cout << "President: " << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << ideologies[par_ideology[presnum]][par_subideology[presnum]] << ")" << endl;
+        cout << "President: " << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << ideologies[par_ideology[presnum]][par_subideology[presnum]] << ")" << " | Elected: " << yelect << endl;
         cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
         cout << endl;
         chance = rand()%100;
@@ -273,6 +279,19 @@ void polls()
                 
             }
         }
+        int regular =0;
+        int myon =0;
+        float cut = 0;
+        for(int i=0; i!=10; i++)
+        {
+            cut = (float) par_support_percent[i]/1000;
+            regular =0;
+            myon = rempop*cut;
+            regular = rand()%(myon+1);
+            par_votes[i] += regular;
+            rempop -= regular;
+        }
+        
         //cout << "G";
         hasvoted = false;
         rempop-= tickremove;
@@ -322,9 +341,12 @@ void preselec()
             winvotes = par_votes[i];
         }
     }
-    if(winnum != presnum)
+    if(president != par_president[winnum])
     {
+        string yelstring = to_string(yelect), yestring = to_string(year);
+        preshistory[presidents] = president + " (" + names[par_ideology[presnum]][par_name[presnum]] + " | " + ideologies[par_ideology[presnum]][par_subideology[presnum]]+ ") " + yelstring + " - " + yestring;
         prevpres = presnum;
+        presidents++;
         yelect = year;
     }
     president = par_president[winnum];
@@ -459,6 +481,8 @@ void coalitionform()
 int main()
 {
     srand((unsigned)time(NULL));
+    ofstream MyFile("Presidents.txt");
+    MyFile << "File Created Succesfully" << endl;
     //cout << "A";
     setup();
     game:
@@ -488,14 +512,18 @@ int main()
     {
         cout << year << " Parliamentary Election" << endl;
     }
-    cout << "President: " << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << ideologies[par_ideology[presnum]][par_subideology[presnum]] << ")" << endl;
+    cout << "President: " << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << ideologies[par_ideology[presnum]][par_subideology[presnum]] << ")" << " | Elected: " << yelect << endl;
     cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
     cout << endl;
     
     cout << "Government Coalition: " << govseats << " seats" << endl;
     for(int i=0; i!=govmembers; i++)
     {
-        cout << govcoalition[i] << " (" << ideologies[par_ideology[gmemnum[i]]][par_subideology[gmemnum[i]]] << ")"<< endl;
+        if(par_seats[gmemnum[i]] > 0)
+        {
+            cout << govcoalition[i] << " (" << ideologies[par_ideology[gmemnum[i]]][par_subideology[gmemnum[i]]] << ")"<< endl;
+        }
+        
     }
     cout << "\n==========\n" << endl;
     
@@ -503,23 +531,51 @@ int main()
         cout << "Opposition Coalition: " << opposeats << " seats" << endl;
         for(int i=0; i!=oppomembers; i++)
         {
-            cout << oppocoalition[i] << " (" << ideologies[par_ideology[oppomemnum[i]]][par_subideology[oppomemnum[i]]] << ")" << endl;
+            if(par_seats[oppomemnum[i]] > 0)
+            {
+                cout << oppocoalition[i] << " (" << ideologies[par_ideology[oppomemnum[i]]][par_subideology[oppomemnum[i]]] << ")" << endl;
+            }
         }
     
     
     cout << endl;
     for(int i=0; i!=10; i++)
     {
-        cout <<names[par_ideology[i]][par_name[i]] << " (" << ideologies[par_ideology[i]][par_subideology[i]] << ")" << ": " << par_seats[i] << endl;
-        cout << par_votes[i] << " votes (" << par_votes_percent[i] << "%)" << endl;
-        for(int b=0; b!= par_votes_percent[i]/2; b++)
+        if(par_seats[i] >0)
         {
-            cout << "|";
+            cout << par_president[i] << " (" <<names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << ")" << ": " << par_seats[i] << " seats" << endl;
+            cout << par_votes[i] << " votes (" << par_votes_percent[i] << "%)" << endl;
+            for(int b=0; b!= par_votes_percent[i]/2; b++)
+            {
+                cout << "|";
+            }
+            cout << endl;
+            cout << endl;
         }
-        cout << endl;
-        cout << endl;
     }
+    kami:
     cin >> unput;
+    if(unput == "save")
+    {
+        if(presidents > counted)
+        {
+            MyFile.open("Presidents.txt", ios::app);
+            for(int i=0; i!= presidents- counted; i++)
+            {
+                MyFile << preshistory[i+counted] << endl;
+            }
+            counted = presidents;
+        }
+        goto kami;
+    }else if(unput == "display")
+    {
+        for(int i=0; i!= presidents; i++)
+        {
+            cout << preshistory[i+counted] << endl;
+        }
+        cout << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << ideologies[par_ideology[presnum]][par_subideology[presnum]] << ") " << yelect << " - Present" << endl;
+        goto kami;
+    }
     update();
     goto game;
     return 0;
