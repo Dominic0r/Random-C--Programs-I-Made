@@ -464,19 +464,94 @@ void coalitionform()
     
     if(govseats >= opposeats)
     {
-        primem = par_primem[gov];
         govinpower = true;
-        pmnum = gov;
     } else
     {
-        primem = par_primem[opponum];
         govinpower = false;
-        pmnum = opponum;
     }
     
 }
 
-
+void govform()
+{
+    int points[10]= {0,0,0,0,0,0,0,0,0,0};
+    int memnum[10]= {0,0,0,0,0,0,0,0,0,0};
+    int votedivide[10] = {0,0,0,0,0,0,0,0,0,0};
+    int memcount = 0;
+    if(govinpower)
+    {
+        memcount = govmembers;
+        for(int i=0;i!=memcount;i++){votedivide[i]=par_seats[gmemnum[i]]*100;memnum[i]=gmemnum[i];}
+    } else
+    {
+        memcount = oppomembers;
+        for(int i=0;i!=memcount;i++){votedivide[i]=par_seats[oppomemnum[i]]*100;memnum[i]=oppomemnum[i];}
+    }
+    int winnum =0;
+    int winvotes =0;
+    for(int b =0; b!= 11; b++)
+    {
+        for(int i=0; i!=memcount; i++)
+        {
+            if(votedivide[i] > winvotes && votedivide[i] > 0)
+            {
+                winnum =i;
+                winvotes = votedivide[i];
+            }
+        }
+        points[winnum]++;
+        if(govinpower)
+        {
+            votedivide[winnum] =(par_seats[gmemnum[winnum]]*100)/ (points[winnum]+1);
+        } else
+        {
+            votedivide[winnum] =(par_seats[oppomemnum[winnum]]*100)/ (points[winnum]+1);
+        }
+        winnum = 11;
+        winvotes =0;
+    }
+    
+        for(int i=0; i!=memcount; i++)
+        {
+            if(points[i] > winvotes)
+            {
+                winnum = memnum[i];
+                winvotes = points[i];
+            }
+        }
+    pmnum = winnum;
+    primem = par_primem[winnum];
+    
+    
+    
+    /*if(govinpower)
+    {
+        for(int i=0; i!=11; i++)
+        {
+            for(int b =0; b!=govmembers; b++)
+            {
+                if(votedivide[b]> winvotes)
+                {
+                    winnum = b;
+                    winvotes = votedivide[b];
+                }
+            }
+            points[winnum]++;
+            votedivide[winnum] = par_seats[gmemnum[memnum[winnum]]]/ (points[winnum]+1);
+            winnum = 11;
+            winvotes = 0;
+        }
+        for(int b =0; b!=govmembers; b++)
+        {
+            if(points[b]> winvotes)
+            {
+                winnum = b;
+                winvotes = points[b];
+            }
+        }
+        
+    }*/
+}
 
 int main()
 {
@@ -497,6 +572,8 @@ int main()
     seatdistrib();
     //cout << "E";
     coalitionform();
+    
+    govform();
     
     /*for(int i=0; i!=10; i++)
     {
@@ -521,7 +598,7 @@ int main()
     {
         if(par_seats[gmemnum[i]] > 0)
         {
-            cout << govcoalition[i] << " (" << ideologies[par_ideology[gmemnum[i]]][par_subideology[gmemnum[i]]] << ")"<< endl;
+            cout << par_president[gmemnum[i]] << " (" << govcoalition[i] << " | " << ideologies[par_ideology[gmemnum[i]]][par_subideology[gmemnum[i]]] << ")"<< ": " << par_seats[gmemnum[i]] << " seats"<< endl;
         }
         
     }
@@ -533,7 +610,7 @@ int main()
         {
             if(par_seats[oppomemnum[i]] > 0)
             {
-                cout << oppocoalition[i] << " (" << ideologies[par_ideology[oppomemnum[i]]][par_subideology[oppomemnum[i]]] << ")" << endl;
+                cout << par_president[oppomemnum[i]] << " (" << oppocoalition[i] << " | " << ideologies[par_ideology[oppomemnum[i]]][par_subideology[oppomemnum[i]]] << ")"<< ": " << par_seats[oppomemnum[i]] << " seats"<< endl;
             }
         }
     
