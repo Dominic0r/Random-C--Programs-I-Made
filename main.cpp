@@ -75,6 +75,8 @@ int govmembers =0;
 int govseats =0;
 int gmemnum[10];
 
+bool ismajor[10] = {false,false,false,false,false,false,false,false,false,false};
+
 string oppocoalition[10];
 int oppomembers =0;
 int opposeats =0;
@@ -288,6 +290,10 @@ void polls()
             regular =0;
             myon = rempop*cut;
             regular = rand()%(myon+1);
+            if(ismajor[i] == true)
+            {
+                regular += regular*0.25;
+            }
             par_votes[i] += regular;
             rempop -= regular;
         }
@@ -362,6 +368,7 @@ void seatdistrib()
     for(int i=0;i!=10;i++){votedivide[i]=par_votes[i];}
     int winnum =0;
     int winvotes =0;
+    int wins = 0;
     while(remdists >0)
     {
         for(int i=0; i!= 10;i++)
@@ -373,8 +380,9 @@ void seatdistrib()
             }
         }
         
-        tickremove = (((rand()%(remdists)*0.10)*100)/(remdists+1))+1;
-        tickremove += par_votes_percent[winnum]/20;
+        tickremove = ((remdists*par_votes_percent[winnum])/100);
+        tickremove += (tickremove*(5-wins))/10;
+        wins++;
         if(remdists-tickremove <0)
         {
             tickremove = remdists;
@@ -389,6 +397,10 @@ void seatdistrib()
         points[winnum]++;
         winvotes=0;
         winnum=0;
+    }
+    for(int i=0; i!=10; i++)
+    {
+        par_seats[i] += (((district*par_votes_percent[i])/100)*25)/100;
     }
 }
 
@@ -551,6 +563,55 @@ void govform()
         }
         
     }*/
+}
+
+void checkmajors()
+{
+    int totseats = (district*25)/100;
+    int minthresh = totseats*0.1;
+    bool val[10]= {false,false,false,false,false,false,false,false,false,false};
+    for(int i=0; i!=10; i++)
+    {
+        if(par_seats[i] >= minthresh)
+        {
+            val[i] = true;
+        }
+    }
+    
+    int confm[3] = {0,0,0};
+    int cfseats[3] = {0,0,0};
+    for(int i=0; i!=10; i++)
+    {
+        if(par_seats[i] > cfseats[0] && par_seats[i] > cfseats[1] && par_seats[i] > cfseats[2] && val[i] == true)
+        {
+            confm[2] = confm[1];
+            confm[1] = confm[0];
+            confm[0] = i;
+            
+            cfseats[2] = cfseats[1];
+            cfseats[1] = cfseats[0];
+            cfseats[0] = par_seats[i];
+        } else if(par_seats[i] < cfseats[0] && par_seats[i] > cfseats[1] && par_seats[i] > cfseats[2] && val[i] == true)
+        {
+            confm[2] = confm[1];
+            confm[1] = i;
+            
+            cfseats[2] = cfseats[1];
+            cfseats[1] = par_seats[i];
+        } else if(par_seats[i] < cfseats[0] && par_seats[i] < cfseats[1] && par_seats[i] > cfseats[2] && val[i] == true)
+        {
+            confm[2] = i;
+            confm[2] = par_seats[i];
+        }
+    }
+    for(int i=0; i!=1; i++)
+    {
+        ismajor[i] = false;
+    }
+    for(int i=0; i!=3;i++)
+    {
+        ismajor[confm[i]] = true;
+    }
 }
 
 int main()
