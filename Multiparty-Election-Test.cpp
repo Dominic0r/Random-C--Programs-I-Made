@@ -292,7 +292,7 @@ void polls()
             regular = rand()%(myon+1);
             if(ismajor[i] == true)
             {
-                regular += regular*0.25;
+                regular += regular*0.50;
             }
             par_votes[i] += regular;
             rempop -= regular;
@@ -380,9 +380,12 @@ void seatdistrib()
             }
         }
         
-        tickremove = ((remdists*par_votes_percent[winnum])/100);
-        tickremove += (tickremove*(5-wins))/10;
-        wins++;
+        tickremove = par_votes_percent[winnum]/10;
+        if(wins < 5)
+        {
+            tickremove += (tickremove*wins)/100;
+            wins++;
+        }
         if(remdists-tickremove <0)
         {
             tickremove = remdists;
@@ -635,6 +638,8 @@ int main()
     coalitionform();
     
     govform();
+    
+    checkmajors();
     
     /*for(int i=0; i!=10; i++)
     {
