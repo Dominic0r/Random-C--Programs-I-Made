@@ -27,14 +27,15 @@ string ideologies[5][5] = {
     {"Nationalism","Traditionalism","National Socialism","National Conservatism","Corporatism"},
 };
 
-string backg[8] = {"Orator","Reformer", "Idealist", "Pragmatist", "Compromiser", "Bureaucrat", "Technocrat", "Strongman"};
+string backg[8] = {"Orator","Reformer", "Idealist", "Pragmatist", "Compromiser", "Bureaucrat", "Outsider", "Strongman"};
 int par_bg[10]= {0,0,0,0,0,0,0,0,0,0};
 
 int year = 1948;
 
 string unput = "";
 
-bool midterm = false;
+bool midterm = true; // if true, then there is a parliamentary election
+bool prelec = true; // if true, then there is a presidential election
 
 int population = 1500000;
 
@@ -75,6 +76,9 @@ int district = population/25000;
 int prime[2];
 
 int counted =0;
+
+int ly_pres = 1948;
+int ly_pm = 1948;
 
 string govcoalition[10];
 int govmembers =0;
@@ -175,14 +179,35 @@ void setup()
 
 void update()
 {
-    year+=3;
-    midterm = !midterm;
+    
+   if(ly_pm+5 < ly_pres+6) // if the parliamentary election is closer
+   {
+       midterm = true;
+       prelec = false;
+       year = ly_pm +5;
+       ly_pm = year;
+   }else if(ly_pm+5> ly_pres+6) // if the presidential election is closer
+   {
+       midterm = false;
+       prelec = true;
+       year = ly_pres+6;
+       ly_pres = year;
+   }else if(ly_pm+5 == ly_pres+6) // if both elections happent he same year
+   {
+       midterm = true;
+       prelec = true;
+       year = year+5;
+       ly_pm = year;
+       ly_pres = year;
+   }
+
+        
     int pad = population*0.1;
     population += rand()%pad+1;
     district = population/25000;
     for(int i =0; i!=10;i++)
     {
-        if((year - foundingyear[i]) - ((par_seats[i]*100)/(district+1)) > rand()%100 && i != presnum && i != pmnum)
+        if((year - foundingyear[i]) - ((par_seats[i]*100)/(district+1)) > rand()%100 && i != presnum && i != pmnum && prelec == false)
         {
             par_ideology[i] = rand()%5;
             par_subideology[i] = rand()%5;
@@ -195,7 +220,7 @@ void update()
             foundingyear[i] = year;
         }
         
-        if(rand()%50 > par_votes_percent[i]- (year-yelect))
+        if(rand()%30 > par_votes_percent[i]- (year-yelect))
         {
             par_president[i] = namegen();
             par_personality[i] = rand()%100;
@@ -203,7 +228,7 @@ void update()
             par_bg[i] = rand()%8;
         }
         
-        if(rand()%50 > par_seats_percent[i])
+        if(rand()%30 > par_seats_percent[i])
         {
             par_primem[i] = namegen();
             par_personality[i] += (rand()%50)-25;
@@ -216,22 +241,24 @@ void update()
             }
         }
         
+        
         par_support[i] = (rand()%((100+ (par_support[i]/10))+ par_votes_percent[i])+1)- (year - yelect);
         par_support[i] += (par_seats[i]*100)/district;
         if(i == presnum || i == pmnum || i == oppoleader)
         {
             par_support[i] += 50;
         }
-        par_support_percent[i] =0;
-        par_votes_percent[i] =0;
-        par_votes[i] =0;
-        par_seats[i] =0;
+        
+            par_support_percent[i] =0;
+            par_votes_percent[i] =0;
+            par_votes[i] =0;
+            par_seats[i] =0;
+        
     }
-    govmembers =0;
-    oppomembers =0;
-    govseats =0;
-    opposeats =0;
-    
+        govmembers =0;
+        oppomembers =0;
+        govseats =0;
+        opposeats =0;
     
 }
 
@@ -262,10 +289,13 @@ void polls()
     
     while(rempop >population*0.15)
     {
-        if(midterm)
+        if(midterm == true && prelec == false)
         {
             cout << year << " Parliamentary Election" << endl;
-        } else{
+        }else if (midterm == false && prelec == true)
+        {
+            cout << year << " Presidential Election" << endl;
+        }else if(midterm == true && prelec == true){
             cout << year << " General Election" << endl;
         }
         cout << endl;
@@ -391,7 +421,7 @@ void seatdistrib()
     for(int i=0;i!=10;i++){votedivide[i]=par_votes[i];}
     int winnum =0;
     int winvotes =0;
-    int wins = 0;
+    int wins = 10;
     while(remdists >0)
     {
         for(int i=0; i!= 10;i++)
@@ -403,11 +433,11 @@ void seatdistrib()
             }
         }
         
-        tickremove = par_votes_percent[winnum]/10;
-        if(wins < 5)
+        tickremove = rand()%((par_votes_percent[winnum]/10)+1);
+        if(wins >1)
         {
             tickremove += (tickremove*wins)/100;
-            wins++;
+            wins--;
         }
         if(remdists-tickremove <0)
         {
@@ -640,44 +670,8 @@ void checkmajors()
     }
 }
 
-int main()
+void disp_parlo()
 {
-    srand((unsigned)time(NULL));
-    ofstream MyFile("Presidents.txt");
-    MyFile << "File Created Succesfully" << endl;
-    //cout << "A";
-    setup();
-    game:
-    //cout << "L";
-    polls();
-    //cout << "F";
-    if(!midterm)
-    {
-        preselec();
-    }
-    //cout << "R";
-    seatdistrib();
-    //cout << "E";
-    coalitionform();
-    
-    govform();
-    
-    checkmajors();
-    
-    /*for(int i=0; i!=10; i++)
-    {
-        cout <<names[par_ideology[i]][par_name[i]] << endl;
-        cout << par_president[i] << "\n" << par_primem[i] << endl;
-        cout << ideologies[par_ideology[i]][par_subideology[i]] << endl;
-        cout << "\n==========\n" << endl;
-    }*/
-    if(!midterm)
-    {
-        cout << year << " General Election" << endl;
-    } else
-    {
-        cout << year << " Parliamentary Election" << endl;
-    }
     cout << "President: " << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << pressideo<< " | " << presbg << ")" << " | Elected: " << yelect << endl;
     cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
     cout << endl;
@@ -719,21 +713,76 @@ int main()
             cout << endl;
         }
     }
+}
+
+void disp_pres()
+{
+    cout << "President: " << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << pressideo<< " | " << presbg << ")" << " | Elected: " << yelect << endl;
+    cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
+
+    for(int i=0; i!=10; i++)
+    {
+            cout << par_president[i] << " (" <<names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")" << ": " << par_seats[i] << " seats" << endl;
+            cout << par_votes[i] << " votes (" << par_votes_percent[i] << "%)" << endl;
+            for(int b=0; b!= par_votes_percent[i]/2; b++)
+            {
+                cout << "|";
+            }
+            cout << endl;
+            cout << endl;
+        
+    }
+}
+
+int main()
+{
+    srand((unsigned)time(NULL));
+    
+    //cout << "A";
+    setup();
+    game:
+    //cout << "L";
+    polls();
+    //cout << "F";
+    if(prelec)
+    {
+        preselec();
+    }
+    if(midterm)
+    {
+        //cout << "R";
+        seatdistrib();
+        //cout << "E";
+        coalitionform();
+        
+        govform();
+        
+        checkmajors();
+    }
+    
+    /*for(int i=0; i!=10; i++)
+    {
+        cout <<names[par_ideology[i]][par_name[i]] << endl;
+        cout << par_president[i] << "\n" << par_primem[i] << endl;
+        cout << ideologies[par_ideology[i]][par_subideology[i]] << endl;
+        cout << "\n==========\n" << endl;
+    }*/
+    if(midterm == true && prelec == false)
+    {
+        cout << year << " Parliamentary Election" << endl;
+        disp_parlo();
+    }else if (midterm == false && prelec == true)
+    {
+        cout << year << " Presidential Election" << endl;
+        disp_pres();
+    }else if(midterm == true && prelec == true){
+        cout << year << " General Election" << endl;
+        disp_parlo();
+    }
+    
     kami:
     cin >> unput;
-    if(unput == "save")
-    {
-        if(presidents > counted)
-        {
-            MyFile.open("Presidents.txt", ios::app);
-            for(int i=0; i!= presidents- counted; i++)
-            {
-                MyFile << preshistory[i+counted] << endl;
-            }
-            counted = presidents;
-        }
-        goto kami;
-    }else if(unput == "display")
+    if(unput == "display")
     {
         for(int i=0; i!= presidents; i++)
         {
