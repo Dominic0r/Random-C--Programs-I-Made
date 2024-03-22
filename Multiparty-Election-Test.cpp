@@ -85,6 +85,8 @@ int govmembers =0;
 int govseats =0;
 int gmemnum[10];
 
+int competence[10]={0,0,0,0,0,0,0,0,0,0};
+
 bool ismajor[10] = {false,false,false,false,false,false,false,false,false,false};
 
 string oppocoalition[10];
@@ -99,6 +101,16 @@ int oppoleader = 11;
 int termlength =0;
 
 int foundingyear[10] = {1948,1948,1948,1948,1948,1948,1948,1948,1948,1948};
+
+int regions =0;
+int r_dev[999];
+int avdev=0;
+
+string curpm = "";
+int govyear = 1948;
+string ghistory[100];
+int govs= 0;
+int prevpm =11;
 
 string namegen()
 {
@@ -159,6 +171,12 @@ string namegen()
 void setup()
 {
     for(int i=0; i!= 100; i++) {preshistory[i]="";}
+    int dvsr = (rand()%15)+5;
+    regions = district/dvsr;
+    for(int i=0; i!=regions; i++)
+    {
+        r_dev[i] = rand()%10;
+    }
     population += (rand()%1000000);
     for(int i=0; i!=10; i++)
     {
@@ -170,11 +188,48 @@ void setup()
         par_personality[i] = rand()%100;
         par_bg[i] = rand()%8;
         par_support[i] = (rand()%100)+25;
+        competence[i] = rand()%100;
         if(rand()%100 < par_personality[i])
         {
             par_support[i] *= 2;
         }
     }
+}
+
+void eco()
+{
+    int dvsr = (rand()%15)+5;
+    regions = district/dvsr;
+    int succeed =0, none =0;
+    succeed = competence[presnum];
+    none = (rand()%(100-competence[presnum]))+competence[presnum];
+    int decider =0;
+    int all =0;
+    for(int i=0; i!=regions; i++)
+    {
+        decider = rand()%100;
+        if(decider < succeed)
+        {
+            r_dev[i]++;
+        }else if(decider >= succeed && decider <= none)
+        {
+            
+        }else if (decider > none)
+        {
+            r_dev[i]--;
+        }
+        if(r_dev[i] < 0)
+        {
+            r_dev[i] = 0;
+        }
+        if(r_dev[i] > 20)
+        {
+            r_dev[i] = 20;
+        }
+        all+=r_dev[i];
+    }
+    avdev = (all*100)/ (regions*20);
+    
 }
 
 void update()
@@ -218,6 +273,7 @@ void update()
             par_support[i] = (rand()%100)+25;
             par_bg[i] = rand()%8;
             foundingyear[i] = year;
+            competence[i] = rand()%100;
         }
         
         if(rand()%30 > par_votes_percent[i]- (year-yelect))
@@ -225,6 +281,7 @@ void update()
             par_president[i] = namegen();
             par_personality[i] = rand()%100;
             par_subideology[i] = rand()%5;
+            competence[i] = rand()%100;
             par_bg[i] = rand()%8;
         }
         
@@ -407,6 +464,19 @@ void preselec()
         pressideo = ideologies[par_ideology[winnum]][par_subideology[winnum]];
         presbg = backg[par_bg[winnum]];
         yelect = year;
+        
+        string yelstring1 = to_string(govyear);
+        ghistory[govs] = president + " - " + primem + " Government (" + yelstring1 + " - " + yestring + ") - ";
+        if(govinpower)
+        {
+            ghistory[govs] += "Pro-President Government";
+        } else
+        {
+            ghistory[govs] += "Opposition Government";
+        }
+        govs++;
+        govyear = year;
+        
     }
     president = par_president[winnum];
     presnum = winnum;
@@ -587,10 +657,26 @@ void govform()
                 winvotes = points[i];
             }
         }
+    
+    
+    if(primem != par_primem[winnum] && prelec == false)
+    {
+        string yelstring = to_string(govyear), yestring = to_string(year);
+        ghistory[govs] = president + " - " + primem + " Government (" + yelstring + " - " + yestring + ") - ";
+        if(govinpower)
+        {
+            ghistory[govs] += "Pro-President Government";
+        } else
+        {
+            ghistory[govs] += "Opposition Government";
+        }
+        prevpm = pmnum;
+        govs++;
+        govyear = year;
+    }
+    
     pmnum = winnum;
     primem = par_primem[winnum];
-    
-    
     
     /*if(govinpower)
     {
@@ -779,8 +865,10 @@ int main()
         cout << year << " General Election" << endl;
         disp_parlo();
     }
+    cout<< "\n\nAverae Development Level: " << avdev << "%" << endl;
     
     kami:
+    
     cin >> unput;
     if(unput == "display")
     {
@@ -790,8 +878,24 @@ int main()
         }
         cout << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << pressideo<< " | " << presbg<< ") " << yelect << " - Present" << endl;
         goto kami;
+    } else if (unput == "govs")
+    {
+        for(int i=0; i!= govs; i++)
+        {
+            cout << ghistory[i+counted] << endl;
+        }
+        cout << president << " - " << primem << " Government (" << govyear << " - Present) - ";
+        if(govinpower)
+        {
+            cout <<"Pro-President Government" << endl;
+        } else
+        {
+            cout <<  "Opposition Government" << endl;;
+        }
+        goto kami;
     }
     update();
+    eco();
     goto game;
     return 0;
 }
