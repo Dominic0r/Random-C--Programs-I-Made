@@ -11,7 +11,7 @@
 
 using namespace std;
 
-string names[5][10]={
+string names[5][15]={
     {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front - L","Democratic Progressive Party - L","National Republican Party - C","National Congress of Unions","Worker's Party"},
     {"Socialist Party","National Progressive Party","Greens","Social Democratic Party","Labor Party","Socialist United Front - M","Democratic Progressive Party - M","Socialists and Democrats - L","National Liberal Movement - L","National Republican Party - P"},
     {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party - R","Socialists and Democrats - M","National Liberal Movement - M","Liberal Democratic Party - M","National Republican Party - L"},
@@ -27,10 +27,20 @@ string ideologies[5][5] = {
     {"Nationalism","Traditionalism","National Socialism","National Conservatism","Corporatism"},
 };
 
+string ideologies_call[5][5] = {
+    {"Communist","Marxist","Popular","Market Socialist","National Communist"},
+    {"Socialist","Progressive","Popular","Religious Socialist","Social Liberal"},
+    {"Liberal","Corporate","Popular","Religious Liberal","United"},
+    {"Conservative","Market Liberal","Popular","Democratic","Libertarian"},
+    {"Nationalist","Traditionalist","National Socialist","National Conservative","Corporate"},
+};
+
+
+
 string backg[8] = {"Orator","Reformer", "Idealist", "Pragmatist", "Compromiser", "Bureaucrat", "Outsider", "Strongman"};
 int par_bg[10]= {0,0,0,0,0,0,0,0,0,0};
 
-int year = 1948;
+int year = 1922;
 
 string unput = "";
 
@@ -67,7 +77,7 @@ string preshistory[100];
 int presidents =0;
 
 string par_president[10] = {"","","","","","","","","",""};
-int yelect =1948;
+int yelect =year;
 int prevpres =11;
 string par_primem[10] = {"","","","","","","","","",""};
 
@@ -77,8 +87,8 @@ int prime[2];
 
 int counted =0;
 
-int ly_pres = 1948;
-int ly_pm = 1948;
+int ly_pres = year;
+int ly_pm = year;
 
 string govcoalition[10];
 int govmembers =0;
@@ -107,7 +117,7 @@ int r_dev[999];
 int avdev=0;
 
 string curpm = "";
-int govyear = 1948;
+int govyear = year;
 string ghistory[100];
 int govs= 0;
 int prevpm =11;
@@ -266,7 +276,49 @@ void update()
         {
             par_ideology[i] = rand()%5;
             par_subideology[i] = rand()%5;
-            par_name[i] = rand()%10;
+            par_name[i] = rand()%15;
+            if(par_name[i] >=10)
+            {
+                if(rand()%100<50)
+                {
+                    names[par_ideology[i]][par_name[i]]= to_string(year) + " Movement";
+                }else
+                {
+                    switch(rand()%10)
+                    {
+                        case 1:
+                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Party";
+                            break;
+                        case 2:
+                            names[par_ideology[i]][par_name[i]]= "Alliance of "+ ideologies_call[par_ideology[i]][par_subideology[i]]+ "s";
+                            break;
+                        case 3:
+                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Movement";
+                            break;
+                        case 4:
+                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Union";
+                            break;
+                        case 5:
+                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Action Party";
+                            break;
+                        case 6:
+                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " League";
+                            break;
+                        case 7:
+                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Coalition";
+                            break;
+                        case 8:
+                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Citizen's Party";
+                            break;
+                        case 9:
+                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " List";
+                            break;
+                        default:
+                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Bloc";
+                            break;
+                    }
+                }
+            }
             par_president[i] = namegen();
             par_primem[i] = namegen();
             par_personality[i] = rand()%100;
