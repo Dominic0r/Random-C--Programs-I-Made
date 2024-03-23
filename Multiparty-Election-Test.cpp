@@ -87,6 +87,9 @@ int prime[2];
 
 int counted =0;
 
+int tot_elec = 20*district;
+int par_electors[10]={0,0,0,0,0,0,0,0,0,0};
+
 int ly_pres = year;
 int ly_pm = year;
 
@@ -266,7 +269,7 @@ void update()
        ly_pres = year;
    }
 
-        
+    tot_elec = district*20;
     int pad = population*0.1;
     population += rand()%pad+1;
     district = population/25000;
@@ -444,6 +447,18 @@ void polls()
         int regular =0;
         int myon =0;
         float cut = 0;
+        int partido[5] = {0,0,0,0,0};
+        for(int i=0; i!=10; i++)
+        {
+            for(int y=0; y!=5; y++)
+            {
+                if(par_ideology[i] == y)
+                {
+                    partido[y]++;
+                }
+            }
+        }
+        
         for(int i=0; i!=10; i++)
         {
             cut = (float) par_support_percent[i]/1000;
@@ -452,8 +467,9 @@ void polls()
             regular = rand()%(myon+1);
             if(ismajor[i] == true)
             {
-                regular += regular*0.50;
+                regular += regular*2;
             }
+            regular = regular/(partido[par_ideology[i]]+1);
             par_votes[i] += regular;
             rempop -= regular;
         }
@@ -499,14 +515,59 @@ void polls()
 void preselec()
 {
     int winnum =0, winvotes =0;
+    int invot[10];
+    int points[10];
+    int all =20;
+    int avgpctg =0;
+    for(int i=0; i!=10; i++){avgpctg+=par_votes_percent[i];}
+    avgpctg = avgpctg/10;
     for(int i=0; i!=10; i++)
     {
-        if(par_votes[i] > winvotes)
+        par_electors[i] =0;
+        invot[i] = par_votes[i];
+        points[i] =0;
+    }
+    int remelec = tot_elec;
+    while(remelec >0)
+    {
+        for(int i=0; i!=10; i++)
+        {
+            if(invot[i] > winvotes && par_votes_percent[i] > avgpctg)
+            {
+                winnum = i;
+                winvotes = invot[i];
+            }
+        }
+        int remove =0;
+        remove = (rand()%20)+1;
+        if(all >0)
+        {
+            remove += remove *all;
+            all--;
+        }
+        
+        if(remove > remelec)
+        {
+            remove = remelec;
+        }
+        points[winnum]++;
+        par_electors[winnum] += remove;
+        remelec -= remove;
+        invot[winnum]= par_votes[winnum]/(points[winnum]+1);
+        winnum =0;
+        winvotes =0;
+    }
+    
+    for(int i=0; i!=10; i++)
+    {
+        if(par_electors[i] > winvotes)
         {
             winnum = i;
-            winvotes = par_votes[i];
+            winvotes = par_electors[i];
         }
     }
+    
+    
     if(president != par_president[winnum])
     {
         string yelstring = to_string(yelect), yestring = to_string(year);
@@ -842,6 +903,10 @@ void disp_parlo()
         if(par_seats[i] >0)
         {
             cout << par_president[i] << " (" <<names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")" << ": " << par_seats[i] << " seats" << endl;
+            if(prelec == true)
+            {
+                cout << par_electors[i] << " / " << tot_elec << " electoral votes" << endl;
+            }
             cout << par_votes[i] << " votes (" << par_votes_percent[i] << "%)" << endl;
             for(int b=0; b!= par_votes_percent[i]/2; b++)
             {
@@ -855,19 +920,23 @@ void disp_parlo()
 
 void disp_pres()
 {
+    cout << endl;
     cout << "President: " << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << pressideo<< " | " << presbg << ")" << " | Elected: " << yelect << endl;
     cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
 
     for(int i=0; i!=10; i++)
     {
-            cout << par_president[i] << " (" <<names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")" << ": " << par_seats[i] << " seats" << endl;
-            cout << par_votes[i] << " votes (" << par_votes_percent[i] << "%)" << endl;
-            for(int b=0; b!= par_votes_percent[i]/2; b++)
-            {
-                cout << "|";
-            }
-            cout << endl;
-            cout << endl;
+        if(par_electors[i]>0)
+        {
+            cout << par_president[i] << " (" <<names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")" << ": " << par_electors[i]<< " / " << tot_elec << " electoral votes" << endl;
+                cout << par_votes[i] << " votes (" << par_votes_percent[i] << "%)" << endl;
+                for(int b=0; b!= par_votes_percent[i]/2; b++)
+                {
+                    cout << "|";
+                }
+                cout << endl;
+                cout << endl;
+        }
         
     }
 }
@@ -917,7 +986,7 @@ int main()
         cout << year << " General Election" << endl;
         disp_parlo();
     }
-    cout<< "\n\nAverae Development Level: " << avdev << "%" << endl;
+    //cout<< "\n\nAverage Development Level: " << avdev << "%" << endl;
     
     kami:
     
