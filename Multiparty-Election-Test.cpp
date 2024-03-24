@@ -659,6 +659,8 @@ void seatdistrib()
     {
         par_seats[i] += (((district*par_votes_percent[i])/100)*25)/100;
     }
+    district =0;
+    for(int i=0; i!=10; i++){district+=par_seats[i];}
 }
 
 void coalitionform()
@@ -893,7 +895,7 @@ void disp_parlo()
     cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
     cout << endl;
     
-    cout << "Government Coalition: " << govseats << " / " << district << endl;
+    cout << "Government Coalition: " << govseats << " / " <<district << endl;
     for(int i=0; i!=govmembers; i++)
     {
         if(par_seats[gmemnum[i]] > 0)
@@ -923,7 +925,7 @@ void disp_parlo()
         if(par_seats[i] >0)
         {
             cout << par_president[i] << " (" <<names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")" << ": " << par_seats[i] << " seats" << endl;
-            if(prelec == true)
+            if(prelec == true && par_electors[i] >0)
             {
                 cout << par_electors[i] << " / " << tot_elec << " electoral votes" << endl;
             }
