@@ -49,21 +49,21 @@ bool prelec = true; // if true, then there is a presidential election
 
 int population = 1500000;
 
-int par_support[10] = {0,0,0,0,0,0,0,0,0,0};
-int par_support_percent[10] = {0,0,0,0,0,0,0,0,0,0};
+int par_support[11] = {0,0,0,0,0,0,0,0,0,0};
+int par_support_percent[11] = {0,0,0,0,0,0,0,0,0,0};
 
-int par_votes[10] ={0,0,0,0,0,0,0,0,0,0};
-int par_votes_percent[10] = {0,0,0,0,0,0,0,0,0,0};
+int par_votes[11] ={0,0,0,0,0,0,0,0,0,0};
+int par_votes_percent[11] = {0,0,0,0,0,0,0,0,0,0};
 
-int par_seats[10] = {0,0,0,0,0,0,0,0,0,0};
-int par_seats_percent[10] = {0,0,0,0,0,0,0,0,0,0};
+int par_seats[11] = {0,0,0,0,0,0,0,0,0,0};
+int par_seats_percent[11] = {0,0,0,0,0,0,0,0,0,0};
 
-int par_ideology[10] ={0,0,0,0,0,0,0,0,0,0};
-int par_subideology[10] = {0,0,0,0,0,0,0,0,0,0};
+int par_ideology[11] ={0,0,0,0,0,0,0,0,0,0};
+int par_subideology[11] = {0,0,0,0,0,0,0,0,0,0};
 
-int par_name[10] = {0,0,0,0,0,0,0,0,0,0};
+int par_name[11] = {0,0,0,0,0,0,0,0,0,0};
 
-int par_personality[10] = {0,0,0,0,0,0,0,0,0,0};
+int par_personality[11] = {0,0,0,0,0,0,0,0,0,0};
 
 int presnum =11;
 int pmnum =11;
@@ -76,10 +76,10 @@ string primem = "";
 string preshistory[100];
 int presidents =0;
 
-string par_president[10] = {"","","","","","","","","",""};
+string par_president[11] = {"","","","","","","","","",""};
 int yelect =year;
 int prevpres =11;
-string par_primem[10] = {"","","","","","","","","",""};
+string par_primem[11] = {"","","","","","","","","",""};
 
 int district = population/25000;
 
@@ -88,24 +88,24 @@ int prime[2];
 int counted =0;
 
 int tot_elec = 20*district;
-int par_electors[10]={0,0,0,0,0,0,0,0,0,0};
+int par_electors[11]={0,0,0,0,0,0,0,0,0,0};
 
 int ly_pres = year;
 int ly_pm = year;
 
-string govcoalition[10];
+string govcoalition[11];
 int govmembers =0;
 int govseats =0;
-int gmemnum[10];
+int gmemnum[11];
 
-int competence[10]={0,0,0,0,0,0,0,0,0,0};
+int competence[11]={0,0,0,0,0,0,0,0,0,0};
 
-bool ismajor[10] = {false,false,false,false,false,false,false,false,false,false};
+bool ismajor[11] = {false,false,false,false,false,false,false,false,false,false};
 
-string oppocoalition[10];
+string oppocoalition[11];
 int oppomembers =0;
 int opposeats =0;
-int oppomemnum[10];
+int oppomemnum[11];
 
 bool govinpower = false;
 
@@ -113,11 +113,13 @@ int oppoleader = 11;
 
 int termlength =0;
 
-int foundingyear[10] = {1948,1948,1948,1948,1948,1948,1948,1948,1948,1948};
+int foundingyear[11] = {1948,1948,1948,1948,1948,1948,1948,1948,1948,1948};
 
 int regions =0;
 int r_dev[999];
 int avdev=0;
+
+int par_auth[10];
 
 string curpm = "";
 int govyear = year;
@@ -202,6 +204,7 @@ void setup()
         par_bg[i] = rand()%8;
         par_support[i] = (rand()%100)+25;
         competence[i] = rand()%100;
+        par_auth[i] = rand()%100;
         if(rand()%100 < par_personality[i])
         {
             par_support[i] *= 2;
@@ -280,6 +283,7 @@ void update()
             par_ideology[i] = rand()%5;
             par_subideology[i] = rand()%5;
             par_name[i] = rand()%15;
+            par_auth[i] = rand()%100;
             if(par_name[i] >=10)
             {
                 if(rand()%100<50)
@@ -338,6 +342,7 @@ void update()
             par_subideology[i] = rand()%5;
             competence[i] = rand()%100;
             par_bg[i] = rand()%8;
+            par_auth[i] = rand()%100;
         }
         
         if(rand()%30 > par_seats_percent[i])
@@ -430,7 +435,7 @@ void polls()
                     hasvoted = true;
                     if(i == presnum || i == pmnum || i == oppoleader)
                     {
-                        tickremove *= 1.5;
+                        tickremove += tickremove* 1.5;
                     }
                     par_votes[i]+=tickremove;
                     break;
@@ -468,6 +473,10 @@ void polls()
             if(ismajor[i] == true)
             {
                 regular += regular*2;
+            }
+            if(i == presnum&& rand()%100 < par_auth[i])
+            {
+                regular+= regular*2;
             }
             regular = regular/(partido[par_ideology[i]]+1);
             par_votes[i] += regular;
@@ -546,6 +555,11 @@ void preselec()
             all--;
         }
         
+        if(winnum == pmnum && rand()%100 < par_auth[winnum])
+        {
+            remove += remove *10;
+        }
+        
         if(remove > remelec)
         {
             remove = remelec;
@@ -621,6 +635,10 @@ void seatdistrib()
         {
             tickremove += (tickremove*wins)/100;
             wins--;
+        }
+        if(winnum == presnum && rand()%100 < par_auth[winnum])
+        {
+            tickremove += tickremove*1.5;
         }
         if(remdists-tickremove <0)
         {
@@ -875,7 +893,7 @@ void disp_parlo()
     cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
     cout << endl;
     
-    cout << "Government Coalition: " << govseats << " seats" << endl;
+    cout << "Government Coalition: " << govseats << " / " << district << endl;
     for(int i=0; i!=govmembers; i++)
     {
         if(par_seats[gmemnum[i]] > 0)
@@ -884,9 +902,10 @@ void disp_parlo()
         }
         
     }
-    cout << "\n==========\n" << endl;
+    //cout << "\n==========\n" << endl;
     
-    
+    /*if(oppomembers>0)
+    {
         cout << "Opposition Coalition: " << opposeats << " seats" << endl;
         for(int i=0; i!=oppomembers; i++)
         {
@@ -895,6 +914,7 @@ void disp_parlo()
                 cout << par_president[oppomemnum[i]] << " (" << oppocoalition[i] << " | " << ideologies[par_ideology[oppomemnum[i]]][par_subideology[oppomemnum[i]]] << " | " << backg[par_bg[oppomemnum[i]]] << ")"<< ": " << par_seats[oppomemnum[i]] << " seats"<< endl;
             }
         }
+    }*/
     
     
     cout << endl;
@@ -923,6 +943,7 @@ void disp_pres()
     cout << endl;
     cout << "President: " << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << pressideo<< " | " << presbg << ")" << " | Elected: " << yelect << endl;
     cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
+    cout << endl;
 
     for(int i=0; i!=10; i++)
     {
