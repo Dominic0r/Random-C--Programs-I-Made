@@ -45,7 +45,7 @@ int year = 1922;
 string unput = "";
 
 bool midterm = true; // if true, then there is a parliamentary election
-bool prelec = true; // if true, then there is a presidential election
+bool prelec = false; // if true, then there is a presidential election
 
 int population = 1500000;
 
@@ -97,6 +97,8 @@ string govcoalition[11];
 int govmembers =0;
 int govseats =0;
 int gmemnum[11];
+
+bool parallel = true;
 
 int competence[11]={0,0,0,0,0,0,0,0,0,0};
 
@@ -250,27 +252,36 @@ void eco()
 
 void update()
 {
+    if(parallel == false)
+    {
+        if(ly_pm+5 < ly_pres+6) // if the parliamentary election is closer
+        {
+            midterm = true;
+            prelec = false;
+            year = ly_pm +5;
+            ly_pm = year;
+        }else if(ly_pm+5> ly_pres+6) // if the presidential election is closer
+        {
+            midterm = false;
+            prelec = true;
+            year = ly_pres+6;
+            ly_pres = year;
+        }else if(ly_pm+5 == ly_pres+6) // if both elections happent he same year
+        {
+            parallel = true;
+            midterm = true;
+            prelec = false;
+            year = year+5;
+            ly_pm = year;
+            ly_pres = year;
+        }
+    } else
+    {
+        parallel = false;
+        midterm = false;
+        prelec = true;
+    }
     
-   if(ly_pm+5 < ly_pres+6) // if the parliamentary election is closer
-   {
-       midterm = true;
-       prelec = false;
-       year = ly_pm +5;
-       ly_pm = year;
-   }else if(ly_pm+5> ly_pres+6) // if the presidential election is closer
-   {
-       midterm = false;
-       prelec = true;
-       year = ly_pres+6;
-       ly_pres = year;
-   }else if(ly_pm+5 == ly_pres+6) // if both elections happent he same year
-   {
-       midterm = true;
-       prelec = true;
-       year = year+5;
-       ly_pm = year;
-       ly_pres = year;
-   }
 
     tot_elec = district*20;
     int pad = population*0.1;
