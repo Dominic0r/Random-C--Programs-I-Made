@@ -278,8 +278,8 @@ void timeup()
         }else if(ly_pm+5 == ly_pres+6) // if both elections happent he same year
         {
             parallel = true;
-            midterm = true;
-            prelec = false;
+            midterm = false;
+            prelec = true;
             year = year+5;
             ly_pm = year;
             ly_pres = year;
@@ -407,6 +407,8 @@ void polls()
 {
     int supporttotal =0;
     //cout << "A";
+    
+    for(int i=0;i!=10;i++){par_votes[i]=0;}
     for(int i=0; i!=10;i++)
     {
         supporttotal += par_support[i];
@@ -537,6 +539,10 @@ void polls()
         }
         //cout << "A";
         cout << "Remaining Voters: " << rempop << endl;
+        if(totvotes >=population)
+        {
+            totvotes =0;
+        }
         cout << "Total votes counted: " << totvotes << " / " << population << endl;
         sleep(1);
         system("clear");
