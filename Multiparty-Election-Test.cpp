@@ -44,8 +44,8 @@ int year = 1922;
 
 string unput = "";
 
-bool midterm = true; // if true, then there is a parliamentary election
-bool prelec = false; // if true, then there is a presidential election
+bool midterm = false; // if true, then there is a parliamentary election
+bool prelec = true; // if true, then there is a presidential election
 
 int population = 1500000;
 
@@ -132,8 +132,9 @@ int prevpm =11;
 string namegen()
 {
     string consonant[20] = {"B","B","K","D","G","H","H","L","L","M","N","P","R","S","S","T","T","W","W","Y"};
-        string vowel[13] = {"A","A","A","A","A","E","I","I","I","O","O","O","U"};
-        string aftercon[11] = {"NG","NG","M","M","N","K","K","P","P","T","Y"};
+    string lcc[20]= {"b","b","k","d","g","h","h","l","l","m","n","p","r","s","s","t","t","w","w","y"};
+        string vowel[13] = {"a","a","a","a","a","e","i","i","i","o","o","o","u"};
+        string aftercon[11] = {"ng","ng","m","h","n","k","k","p","p","t","y"};
      
         string bloc1,bloc2, bloc3;
         string fname, lname;
@@ -142,18 +143,22 @@ string namegen()
             {
                 bloc1 += aftercon[rand()%11];
             }
-            bloc2 = consonant[rand()%20] + vowel[rand()%13];
+            bloc2 = lcc[rand()%20] + vowel[rand()%13];
             if(rand()%10 < 3)
             {
                 bloc2 += aftercon[rand()%11];
             }
-            bloc3 = consonant[rand()%20] + vowel[rand()%13];
+            bloc3 = lcc[rand()%20] + vowel[rand()%13];
             if(rand()%10 < 3)
             {
                 bloc3 += aftercon[rand()%11];
             }
      
-            fname = bloc1 + bloc2;
+            fname = bloc1;
+            if(rand()%10<5)
+            {
+                fname += bloc2;
+            }
             if(rand()%10 < 5)
             {
                 fname += bloc3;
@@ -166,18 +171,22 @@ string namegen()
             {
                 bloc1 += aftercon[rand()%11];
             }
-            bloc2 = consonant[rand()%20] + vowel[rand()%13];
+            bloc2 = lcc[rand()%20] + vowel[rand()%13];
             if(rand()%10 < 3)
             {
                 bloc2 += aftercon[rand()%11];
             }
-            bloc3 = consonant[rand()%20] + vowel[rand()%13];
+            bloc3 = lcc[rand()%20] + vowel[rand()%13];
             if(rand()%10 < 3)
             {
                 bloc3 += aftercon[rand()%11];
             }
      
-            lname = bloc1 + bloc2;
+            lname = bloc1;
+            if(rand()%10<5)
+            {
+                    lname += bloc2;
+            }
             if(rand()%10 < 5)
             {
                 lname += bloc3;
@@ -250,7 +259,7 @@ void eco()
     
 }
 
-void update()
+void timeup()
 {
     if(parallel == false)
     {
@@ -278,9 +287,13 @@ void update()
     } else
     {
         parallel = false;
-        midterm = false;
-        prelec = true;
+        midterm = true;
+        prelec = false;
     }
+}
+
+void update()
+{
     
 
     tot_elec = district*20;
@@ -1049,8 +1062,12 @@ int main()
         }
         goto kami;
     }
-    update();
-    eco();
+    if(parallel == false)
+    {
+        update();
+        eco();
+    }
+    timeup();
     goto game;
     return 0;
 }
