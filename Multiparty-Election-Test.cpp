@@ -12,11 +12,11 @@
 using namespace std;
 
 string names[5][15]={
-    {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front - L","Democratic Progressive Party - L","National Republican Party - C","National Congress of Unions","Worker's Party"},
-    {"Socialist Party","National Progressive Party","Greens","Social Democratic Party","Labor Party","Socialist United Front - M","Democratic Progressive Party - M","Socialists and Democrats - L","National Liberal Movement - L","National Republican Party - P"},
-    {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party - R","Socialists and Democrats - M","National Liberal Movement - M","Liberal Democratic Party - M","National Republican Party - L"},
-    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","National Liberal Movement - R","Liberal Democratic Party - R","Tradition and Democracy - M","National Republican Party - R","Democratic Interests Alliance"},
-    {"Nationalist Party","Democratic Alliance","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy - R","National Republican Party - N","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement"}
+    {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party"},
+    {"Socialist Party","National Progressive Party","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party"},
+    {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","Liberal Democratic Party","National Republican Party"},
+    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance"},
+    {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement"}
 };
 
 string ideologies[5][5] = {
@@ -24,15 +24,15 @@ string ideologies[5][5] = {
     {"Socialism","Progressive Democracy","Populism","Religious Socialism","Social Liberalism"},
     {"Liberalism","Corporatism","Populism","Religious Liberalism","Big Tent"},
     {"Conservatism","Market Liberalism","Populism","Dynastic Democracy","Libertarianism"},
-    {"Nationalism","Traditionalism","National Socialism","National Conservatism","Corporatism"},
+    {"Nationalism","Traditionalism","National Socialism","Populism","Corporatocracy"},
 };
 
 string ideologies_call[5][5] = {
-    {"Communist","Marxist","Popular","Market Socialist","National Communist"},
-    {"Socialist","Progressive","Popular","Religious Socialist","Social Liberal"},
-    {"Liberal","Corporate","Popular","Religious Liberal","United"},
-    {"Conservative","Market Liberal","Popular","Democratic","Libertarian"},
-    {"Nationalist","Traditionalist","National Socialist","National Conservative","Corporate"},
+    {"Communist","Marxist","Leftist","Market Socialist","National Communist"},
+    {"Socialist","Progressive","Leftist","Religious Socialist","Social Liberal"},
+    {"Liberal","Corporate","Centrist","Religious Liberal","United"},
+    {"Conservative","Liberal Democratic","Rightist","Democratic","Libertarian"},
+    {"Nationalist","Traditionalist","National Socialist","Rightist","Corporate"},
 };
 
 
@@ -47,7 +47,7 @@ string unput = "";
 bool midterm = false; // if true, then there is a parliamentary election
 bool prelec = true; // if true, then there is a presidential election
 
-int population = 1500000;
+int population = 500000;
 
 int par_support[11] = {0,0,0,0,0,0,0,0,0,0};
 int par_support_percent[11] = {0,0,0,0,0,0,0,0,0,0};
@@ -203,7 +203,7 @@ void setup()
     {
         r_dev[i] = rand()%10;
     }
-    population += (rand()%1000000);
+    population += (rand()%500000);
     for(int i=0; i!=10; i++)
     {
         par_ideology[i] = rand()%5;
@@ -263,24 +263,24 @@ void timeup()
 {
     if(parallel == false)
     {
-        if(ly_pm+5 < ly_pres+6) // if the parliamentary election is closer
+        if(ly_pm+5 < ly_pres+4) // if the parliamentary election is closer
         {
             midterm = true;
             prelec = false;
             year = ly_pm +5;
             ly_pm = year;
-        }else if(ly_pm+5> ly_pres+6) // if the presidential election is closer
+        }else if(ly_pm+5> ly_pres+4) // if the presidential election is closer
         {
             midterm = false;
             prelec = true;
-            year = ly_pres+6;
+            year = ly_pres+4;
             ly_pres = year;
-        }else if(ly_pm+5 == ly_pres+6) // if both elections happent he same year
+        }else if(ly_pm+5 == ly_pres+4) // if both elections happent he same year
         {
             parallel = true;
             midterm = false;
             prelec = true;
-            year = year+5;
+            year = year+4;
             ly_pm = year;
             ly_pres = year;
         }
@@ -479,6 +479,9 @@ void polls()
         int myon =0;
         float cut = 0;
         int partido[5] = {0,0,0,0,0};
+        int kapartids[10] ={0,0,0,0,0,0,0,0,0,0};
+        int factions[10] = {0,0,0,0,0,0,0,0,0,0};
+        int kafac[10] = {0,0,0,0,0,0,0,0,0,0};
         for(int i=0; i!=10; i++)
         {
             for(int y=0; y!=5; y++)
@@ -486,6 +489,13 @@ void polls()
                 if(par_ideology[i] == y)
                 {
                     partido[y]++;
+                }
+            }
+            for(int y=0; y!=10;y++)
+            {
+                if(par_name[i] == par_name[y])
+                {
+                    factions[i]++;
                 }
             }
         }
@@ -504,9 +514,25 @@ void polls()
             {
                 regular+= regular*2;
             }
-            regular = regular/(partido[par_ideology[i]]+1);
-            par_votes[i] += regular;
-            rempop -= regular;
+            int regadd =regular;
+            
+            regadd = regular/(partido[par_ideology[i]]+1);
+            regadd = regadd/ ((factions[i]*2)+1);
+            par_votes[i] += regadd;
+            for(int b=0; b!=10;b++)
+            {
+                if(par_ideology[i] == par_ideology[b])
+                {
+                    par_votes[b] += regular/(partido[par_ideology[i]]+1);
+                    regadd +=regular/(partido[par_ideology[i]]+1);
+                }
+                if(par_name[i] == par_name[b])
+                {
+                    par_votes[b] += regular/ ((factions[i]*2)+1);
+                    regadd +=regular/ ((factions[i]*2)+1);
+                }
+            }
+            rempop -= regadd;
         }
         
         //cout << "G";
@@ -637,6 +663,7 @@ void preselec()
     }
     president = par_president[winnum];
     presnum = winnum;
+    par_auth[presnum] += rand()%((year-yelect)+1);
 }
 
 void seatdistrib()
