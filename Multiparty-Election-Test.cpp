@@ -24,7 +24,7 @@ string ideologies[5][5] = {
     {"Socialism","Progressive Democracy","Populism","Religious Socialism","Social Liberalism"},
     {"Liberalism","Corporatism","Populism","Religious Liberalism","Big Tent"},
     {"Conservatism","Market Liberalism","Populism","Dynastic Democracy","Libertarianism"},
-    {"Nationalism","Traditionalism","National Socialism","Populism","Corporatocracy"},
+    {"Nationalism","Traditionalism","Fascism","Populism","Corporatocracy"},
 };
 
 string ideologies_call[5][5] = {
@@ -32,10 +32,16 @@ string ideologies_call[5][5] = {
     {"Socialist","Progressive","Leftist","Religious Socialist","Social Liberal"},
     {"Liberal","Corporate","Centrist","Religious Liberal","United"},
     {"Conservative","Liberal Democratic","Rightist","Democratic","Libertarian"},
-    {"Nationalist","Traditionalist","National Socialist","Rightist","Corporate"},
+    {"Nationalist","Traditionalist","Fascist","Rightist","Corporatist"},
 };
 
-
+string dynasty[5][5] = {
+    {"","","","",""},
+    {"","","","",""},
+    {"","","","",""},
+    {"","","","",""},
+    {"","","","",""},
+};
 
 string backg[8] = {"Orator","Reformer", "Idealist", "Pragmatist", "Compromiser", "Bureaucrat", "Outsider", "Strongman"};
 int par_bg[10]= {0,0,0,0,0,0,0,0,0,0};
@@ -115,7 +121,9 @@ int oppoleader = 11;
 
 int termlength =0;
 
-int foundingyear[11] = {1948,1948,1948,1948,1948,1948,1948,1948,1948,1948};
+bool ingov[11] = {false,false,false,false,false,false,false,false,false,false};
+
+int foundingyear[11] = {year,year,year,year,year,year,year,year,year,year};
 
 int regions =0;
 int r_dev[999];
@@ -129,7 +137,10 @@ string ghistory[100];
 int govs= 0;
 int prevpm =11;
 
-string namegen()
+int dynfluence[5] = {0,0,0,0,0};
+bool underdy[10] = {false,false,false,false,false,false,false,false,false,false};
+
+string namegen(int x, int y)
 {
     string consonant[20] = {"B","B","K","D","G","H","H","L","L","M","N","P","R","S","S","T","T","W","W","Y"};
     string lcc[20]= {"b","b","k","d","g","h","h","l","l","m","n","p","r","s","s","t","t","w","w","y"};
@@ -191,14 +202,66 @@ string namegen()
             {
                 lname += bloc3;
             }
+    underdy[y] = false;
+    if(rand()%100 < dynfluence[x])
+    {
+        lname = dynasty[x][rand()%5];
+        underdy[y] = true;
+    }
     return fname+ " " + lname;
+}
+
+void dygen()
+{
+    string consonant[20] = {"B","B","K","D","G","H","H","L","L","M","N","P","R","S","S","T","T","W","W","Y"};
+    string lcc[20]= {"b","b","k","d","g","h","h","l","l","m","n","p","r","s","s","t","t","w","w","y"};
+        string vowel[13] = {"a","a","a","a","a","e","i","i","i","o","o","o","u"};
+        string aftercon[11] = {"ng","ng","m","h","n","k","k","p","p","t","y"};
+     
+        string bloc1,bloc2, bloc3;
+        string lname;
+    
+    for(int i=0; i!=5; i++)
+    {
+        for(int b=0; b!=5; b++)
+        {
+            bloc1 = consonant[rand()%20] + vowel[rand()%13];
+            if(rand()%10 < 3)
+            {
+                bloc1 += aftercon[rand()%11];
+            }
+            bloc2 = lcc[rand()%20] + vowel[rand()%13];
+            if(rand()%10 < 3)
+            {
+                bloc2 += aftercon[rand()%11];
+            }
+            bloc3 = lcc[rand()%20] + vowel[rand()%13];
+            if(rand()%10 < 3)
+            {
+                bloc3 += aftercon[rand()%11];
+            }
+     
+            dynasty[i][b] = bloc1;
+            if(rand()%10<5)
+            {
+                dynasty[i][b] += bloc2;
+            }
+            if(rand()%10 < 5)
+            {
+                dynasty[i][b] += bloc3;
+            }
+
+        }
+    }
 }
 
 void setup()
 {
+    dygen();
     for(int i=0; i!= 100; i++) {preshistory[i]="";}
     int dvsr = (rand()%15)+5;
     regions = district/dvsr;
+    for(int i=0; i!=5; i++){dynfluence[i]= rand()%50;}
     for(int i=0; i!=regions; i++)
     {
         r_dev[i] = rand()%10;
@@ -209,8 +272,8 @@ void setup()
         par_ideology[i] = rand()%5;
         par_subideology[i] = rand()%5;
         par_name[i] = rand()%10;
-        par_president[i] = namegen();
-        par_primem[i] = namegen();
+        par_president[i] = namegen(par_ideology[i], i);
+        par_primem[i] = namegen(par_ideology[i], i);
         par_personality[i] = rand()%100;
         par_bg[i] = rand()%8;
         par_support[i] = (rand()%100)+25;
@@ -295,11 +358,17 @@ void timeup()
 void update()
 {
     
-
+    
     tot_elec = district*20;
     int pad = population*0.1;
     population += rand()%pad+1;
     district = population/25000;
+    if(underdy[presnum] == true)
+    {
+        dynfluence[par_ideology[presnum]] += 10;
+        for(int i=0; i!=5; i++){dynfluence[i]+=3;}
+    }
+    for(int i=0; i!=5; i++){dynfluence[i]-=2;if(dynfluence[i] <10){dynfluence[i] = 10;} if(dynfluence[i] > 90){dynfluence[i] = 90;}}
     for(int i =0; i!=10;i++)
     {
         if((year - foundingyear[i]) - ((par_seats[i]*100)/(district+1)) > rand()%100 && i != presnum && i != pmnum && prelec == false)
@@ -350,8 +419,8 @@ void update()
                     }
                 }
             }
-            par_president[i] = namegen();
-            par_primem[i] = namegen();
+            par_president[i] = namegen(par_ideology[i], i);
+            par_primem[i] = namegen(par_ideology[i], i);
             par_personality[i] = rand()%100;
             par_support[i] = (rand()%100)+25;
             par_bg[i] = rand()%8;
@@ -359,9 +428,13 @@ void update()
             competence[i] = rand()%100;
         }
         
-        if(rand()%30 > par_votes_percent[i]- (year-yelect))
+        if(rand()%30 > par_votes_percent[i]- (year-yelect) or (par_auth[i] < 70 && year-yelect >= 4 && president == par_president[i]))
         {
-            par_president[i] = namegen();
+            par_president[i] = namegen(par_ideology[i], i);
+            if(rand()%district<par_seats[i])
+            {
+                par_president[i] = par_primem[i];
+            }
             par_personality[i] = rand()%100;
             par_subideology[i] = rand()%5;
             competence[i] = rand()%100;
@@ -369,9 +442,9 @@ void update()
             par_auth[i] = rand()%100;
         }
         
-        if(rand()%30 > par_seats_percent[i])
+        if(rand()%int(district*0.3) > par_seats_percent[i] || par_president[i] == par_primem[i])
         {
-            par_primem[i] = namegen();
+            par_primem[i] = namegen(par_ideology[i], i);
             par_personality[i] += (rand()%50)-25;
             if(par_personality[i] > 100)
             {
@@ -479,9 +552,8 @@ void polls()
         int myon =0;
         float cut = 0;
         int partido[5] = {0,0,0,0,0};
-        int kapartids[10] ={0,0,0,0,0,0,0,0,0,0};
         int factions[10] = {0,0,0,0,0,0,0,0,0,0};
-        int kafac[10] = {0,0,0,0,0,0,0,0,0,0};
+
         for(int i=0; i!=10; i++)
         {
             for(int y=0; y!=5; y++)
@@ -738,12 +810,14 @@ void coalitionform()
     govcoalition[govmembers] = names[par_ideology[gov]][par_name[gov]];
     govmembers++;
     govseats += par_seats[gov];
+    ingov[gov] = true;
     
         oppomemnum[oppomembers] = opponum;
         oppocoalition[oppomembers] = names[par_ideology[opponum]][par_name[opponum]];
         oppomembers++;
         opposeats += par_seats[opponum];
         oppoleader = opponum;
+    ingov[opponum] = false;
     
     
     
@@ -775,12 +849,14 @@ void coalitionform()
                 govcoalition[govmembers] = names[par_ideology[i]][par_name[i]];
                 govmembers++;
                 govseats += par_seats[i];
+                ingov[i] = true;
             }else if(oppopoints < govpoints)
             {
                 oppomemnum[oppomembers] = i;
                 oppocoalition[oppomembers] = names[par_ideology[i]][par_name[i]];
                 oppomembers++;
                 opposeats += par_seats[i];
+                ingov[i] = false;
             }
 
         }
@@ -952,28 +1028,26 @@ void disp_parlo()
     cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
     cout << endl;
     
-    cout << "Government Coalition: " << govseats << " / " <<district << endl;
-    for(int i=0; i!=govmembers; i++)
+    cout << "Government Coalition: " << govseats << " seats" << endl;
+    for(int i=0; i!=10; i++)
     {
-        if(par_seats[gmemnum[i]] > 0)
+        if(par_seats[i] > 0 && ingov[i] == true)
         {
-            cout << par_president[gmemnum[i]] << " (" << govcoalition[i] << " | " << ideologies[par_ideology[gmemnum[i]]][par_subideology[gmemnum[i]]] << " | " << backg[par_bg[gmemnum[i]]] << ")"<< ": " << par_seats[gmemnum[i]] << " seats"<< endl;
+            cout << par_president[i] << " (" << names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")"<< ": " << par_seats[i] << " seats"<< endl;
         }
         
     }
-    //cout << "\n==========\n" << endl;
+    cout << "\n==========\n" << endl;
     
-    /*if(oppomembers>0)
-    {
         cout << "Opposition Coalition: " << opposeats << " seats" << endl;
-        for(int i=0; i!=oppomembers; i++)
+        for(int i=0; i!=10; i++)
         {
-            if(par_seats[oppomemnum[i]] > 0)
+            if(par_seats[i] > 0 && ingov[i] == false)
             {
-                cout << par_president[oppomemnum[i]] << " (" << oppocoalition[i] << " | " << ideologies[par_ideology[oppomemnum[i]]][par_subideology[oppomemnum[i]]] << " | " << backg[par_bg[oppomemnum[i]]] << ")"<< ": " << par_seats[oppomemnum[i]] << " seats"<< endl;
+                cout << par_president[i] << " (" << names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")"<< ": " << par_seats[i] << " seats"<< endl;
             }
         }
-    }*/
+    
     
     
     cout << endl;
