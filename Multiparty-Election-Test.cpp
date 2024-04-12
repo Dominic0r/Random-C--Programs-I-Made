@@ -142,27 +142,32 @@ bool underdy[10] = {false,false,false,false,false,false,false,false,false,false}
 
 string namegen(int x, int y)
 {
-    string consonant[20] = {"B","B","K","D","G","H","H","L","L","M","N","P","R","S","S","T","T","W","W","Y"};
-    string lcc[20]= {"b","b","k","d","g","h","h","l","l","m","n","p","r","s","s","t","t","w","w","y"};
+    string consonant[24] = {"B","B","K","D","G","H","H","L","L","M","N","P","R","S","S","T","T","W","W","Y","Ch","Sh","J","Kw"};
+    string lcc[24]= {"b","b","k","d","g","h","h","l","l","m","n","p","r","s","s","t","t","w","w","y","ch","sh","j","kw"};
         string vowel[13] = {"a","a","a","a","a","e","i","i","i","o","o","o","u"};
         string aftercon[11] = {"ng","ng","m","h","n","k","k","p","p","t","y"};
+    
+    int numcon = sizeof(consonant)/sizeof(string);
+    int numlcc = sizeof(lcc)/sizeof(string);
+    int numvow = sizeof(vowel)/sizeof(string);
+    int numaftercon = sizeof(aftercon)/sizeof(string);
      
         string bloc1,bloc2, bloc3;
         string fname, lname;
-        bloc1 = consonant[rand()%20] + vowel[rand()%13];
+        bloc1 = consonant[rand()%numcon] + vowel[rand()%numvow];
             if(rand()%10 < 3)
             {
-                bloc1 += aftercon[rand()%11];
+                bloc1 += aftercon[rand()%numaftercon];
             }
-            bloc2 = lcc[rand()%20] + vowel[rand()%13];
+            bloc2 = lcc[rand()%numlcc] + vowel[rand()%numvow];
             if(rand()%10 < 3)
             {
-                bloc2 += aftercon[rand()%11];
+                bloc2 += aftercon[rand()%numaftercon];
             }
-            bloc3 = lcc[rand()%20] + vowel[rand()%13];
+            bloc3 = lcc[rand()%numlcc] + vowel[rand()%numvow];
             if(rand()%10 < 3)
             {
-                bloc3 += aftercon[rand()%11];
+                bloc3 += aftercon[rand()%numaftercon];
             }
      
             fname = bloc1;
@@ -177,20 +182,20 @@ string namegen(int x, int y)
      
      
      
-            bloc1 = consonant[rand()%20] + vowel[rand()%13];
+            bloc1 = consonant[rand()%numcon] + vowel[rand()%numvow];
             if(rand()%10 < 3)
             {
-                bloc1 += aftercon[rand()%11];
+                bloc1 += aftercon[rand()%numaftercon];
             }
-            bloc2 = lcc[rand()%20] + vowel[rand()%13];
+            bloc2 = lcc[rand()%numlcc] + vowel[rand()%numvow];
             if(rand()%10 < 3)
             {
-                bloc2 += aftercon[rand()%11];
+                bloc2 += aftercon[rand()%numaftercon];
             }
-            bloc3 = lcc[rand()%20] + vowel[rand()%13];
+            bloc3 = lcc[rand()%numlcc] + vowel[rand()%numvow];
             if(rand()%10 < 3)
             {
-                bloc3 += aftercon[rand()%11];
+                bloc3 += aftercon[rand()%numaftercon];
             }
      
             lname = bloc1;
@@ -586,6 +591,14 @@ void polls()
             {
                 regular+= regular*2;
             }
+            if(i == presnum)
+            {
+                regular += regular*0.75;
+            }
+            if(i == oppoleader)
+            {
+                regular+= regular*1.5;
+            }
             int regadd =regular;
             
             regadd = regular/(partido[par_ideology[i]]+1);
@@ -748,6 +761,7 @@ void seatdistrib()
     int winnum =0;
     int winvotes =0;
     int wins = 10;
+    int windiv =0;
     while(remdists >0)
     {
         for(int i=0; i!= 10;i++)
@@ -762,17 +776,19 @@ void seatdistrib()
         tickremove = rand()%((par_votes_percent[winnum]/10)+1);
         if(wins >1)
         {
-            tickremove += (tickremove*wins)/100;
+            windiv = district/10+ ((100-par_votes_percent[winnum])/10);
+            tickremove += (tickremove*wins)/windiv;
             wins--;
         }
-        if(winnum == presnum && rand()%100 < par_auth[winnum])
+        /*if(winnum == presnum && rand()%100 < par_auth[winnum] && par_votes_percent[winnum] > 50)
         {
             tickremove += tickremove*1.5;
-        }
+        }*/
         if(remdists-tickremove <0)
         {
             tickremove = remdists;
         }
+        //tickremove = 1;
         /*cout << tickremove << endl;
         cout << remdists << endl;
         string debug_input = "";
@@ -804,6 +820,7 @@ void coalitionform()
         {
             winseats = par_seats[i];
             opponum = i;
+            oppoleader = i;
         }
     }
     gmemnum[govmembers] = gov;
