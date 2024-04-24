@@ -444,7 +444,8 @@ void update()
             par_subideology[i] = rand()%5;
             competence[i] = rand()%100;
             par_bg[i] = rand()%8;
-            par_auth[i] = rand()%100;
+            int oldauth = par_auth[i]/10;
+            par_auth[i] = (rand()%100)+oldauth;
         }
         
         if(rand()%int(district*0.3) > par_seats_percent[i] || par_president[i] == par_primem[i])
@@ -526,14 +527,14 @@ void polls()
         chance = rand()%100;
         int rpp = rempop*0.1;
         tickremove = rand()%(rpp+1);
-        while(!hasvoted)
+        /*while(!hasvoted)
         {
             for(int i=0; i!=10; i++)
             {
-                /*cout << "prevstack: " << prevstack << endl;
-                cout << "stack: " << stack << endl;
-                cout << "chance: " << chance << endl;
-                cin>> debug_input;*/
+                //cout << "prevstack: " << prevstack << endl;
+                //cout << "stack: " << stack << endl;
+                //cout << "chance: " << chance << endl;
+                //cin>> debug_input;
                 if(chance > prevstack && chance < stack)
                 {
                     hasvoted = true;
@@ -552,7 +553,7 @@ void polls()
                 }
                 
             }
-        }
+        }*/
         int regular =0;
         int myon =0;
         float cut = 0;
@@ -603,6 +604,10 @@ void polls()
             
             regadd = regular/(partido[par_ideology[i]]+1);
             regadd = regadd/ ((factions[i]*2)+1);
+            if(rand()%100 == chance)
+            {
+                regadd += tickremove;
+            }
             par_votes[i] += regadd;
             for(int b=0; b!=10;b++)
             {
