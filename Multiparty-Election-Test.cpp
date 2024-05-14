@@ -137,6 +137,8 @@ string ghistory[100];
 int govs= 0;
 int prevpm =11;
 
+int pmyear =1920;
+
 int dynfluence[5] = {0,0,0,0,0};
 bool underdy[10] = {false,false,false,false,false,false,false,false,false,false};
 
@@ -447,9 +449,11 @@ void update()
             int oldauth = par_auth[i]/10;
             par_auth[i] = (rand()%100)+oldauth;
         }
+        int leadseatper = (par_seats[pmnum] *100)/district;
         
-        if(rand()%int(district*0.3) > par_seats_percent[i] || par_president[i] == par_primem[i])
+        if(rand()%50 > (leadseatper-(year-pmyear)))
         {
+            pmyear =year;
             par_primem[i] = namegen(par_ideology[i], i);
             par_personality[i] += (rand()%50)-25;
             if(par_personality[i] > 100)
@@ -502,8 +506,6 @@ void polls()
     int tickremove =0;
     int rempop = population;
     int chance = rand()%100;
-    int stack = par_support_percent[0];
-    int prevstack =0;
     bool hasvoted = false;
     int totvotes =0;
     //cout << "N";
@@ -623,6 +625,7 @@ void polls()
                 }
             }
             rempop -= regadd;
+            tickremove += regadd;
         }
         
         //cout << "G";
@@ -726,6 +729,10 @@ void preselec()
             winvotes = par_electors[i];
         }
     }
+    if(par_electors[winnum] <= tot_elec/2&& year !=1922)
+    {
+        winnum = pmnum;
+    }
     
     
     if(president != par_president[winnum])
@@ -753,6 +760,8 @@ void preselec()
     }
     president = par_president[winnum];
     presnum = winnum;
+    
+    
     par_auth[presnum] += rand()%((year-yelect)+1);
 }
 
@@ -771,10 +780,20 @@ void seatdistrib()
     {
         for(int i=0; i!= 10;i++)
         {
-            if(votedivide[i] > winvotes)
+            if(par_auth[presnum] <65)
             {
-                winvotes = votedivide[i];
-                winnum = i;
+                if(votedivide[i] > winvotes)
+                {
+                    winvotes = votedivide[i];
+                    winnum = i;
+                }
+            } else
+            {
+                if(votedivide[i] > winvotes && abs(par_ideology[i]-par_ideology[presnum]) <2)
+                {
+                    winvotes = votedivide[i];
+                    winnum = i;
+                }
             }
         }
         
@@ -864,6 +883,10 @@ void coalitionform()
             if(par_seats[presnum]> district/2)
             {
                 govpoints += 50;
+            }
+            if(par_auth[presnum] > 65)
+            {
+                govpoints-=100;
             }
             if(govpoints <= oppopoints)
             {
