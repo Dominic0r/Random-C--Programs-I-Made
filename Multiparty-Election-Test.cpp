@@ -466,11 +466,11 @@ void update()
         }
         
         
-        par_support[i] = (rand()%((100+ (par_support[i]/10))+ par_votes_percent[i])+1)- (year - yelect);
+        par_support[i] = (rand()%((100+ (par_support[i]/10))+ par_votes_percent[i])+1)- ((year - yelect)/10);
         par_support[i] += (par_seats[i]*100)/district;
         if(i == presnum || i == pmnum || i == oppoleader)
         {
-            par_support[i] += 50;
+            par_support[i] += par_support[i]*0.1;;
         }
         
             par_support_percent[i] =0;
@@ -502,6 +502,7 @@ void polls()
         par_support_percent[i] = (par_support[i]*100)/(supporttotal+1);
         
     }
+    int totsup =0;
     //cout << "A";
     int tickremove =0;
     int rempop = population;
@@ -511,7 +512,8 @@ void polls()
     //cout << "N";
     string debug_input = "";
     
-    while(rempop >population*0.15)
+    
+    while(rempop >population*0.10)
     {
         if(midterm == true && prelec == false)
         {
@@ -582,10 +584,11 @@ void polls()
         
         for(int i=0; i!=10; i++)
         {
-            cut = (float) par_support_percent[i]/1000;
+            cut = (float) par_support_percent[i]/100;
             regular =0;
-            myon = rempop*cut;
-            regular = rand()%(myon+1);
+            myon = (rempop*0.1)*cut;
+            myon+=1;
+            regular = rand()%myon;
             if(ismajor[i] == true)
             {
                 regular += regular*2;
@@ -608,9 +611,8 @@ void polls()
             regadd = regadd/ ((factions[i]*2)+1);
             if(rand()%100 == chance)
             {
-                regadd += tickremove;
+                regadd += rand()%(tickremove+1);
             }
-            par_votes[i] += regadd;
             for(int b=0; b!=10;b++)
             {
                 if(par_ideology[i] == par_ideology[b])
@@ -623,7 +625,9 @@ void polls()
                     par_votes[b] += regular/ ((factions[i]*2)+1);
                     regadd +=regular/ ((factions[i]*2)+1);
                 }
+                
             }
+            par_votes[i] += regadd;
             rempop -= regadd;
             tickremove += regadd;
         }
@@ -692,8 +696,15 @@ void preselec()
         {
             if(invot[i] > winvotes && par_votes_percent[i] > avgpctg)
             {
-                winnum = i;
-                winvotes = invot[i];
+                if(par_auth[presnum] <85)
+                {
+                    winnum = i;
+                    winvotes = invot[i];
+                } else
+                {
+                    winnum = presnum;
+                    winvotes = invot[i];
+                }
             }
         }
         int remove =0;
@@ -780,7 +791,7 @@ void seatdistrib()
     {
         for(int i=0; i!= 10;i++)
         {
-            if(par_auth[presnum] <65)
+            if(par_auth[presnum] <85)
             {
                 if(votedivide[i] > winvotes)
                 {
@@ -789,7 +800,11 @@ void seatdistrib()
                 }
             } else
             {
-                if(votedivide[i] > winvotes && abs(par_ideology[i]-par_ideology[presnum]) <2)
+                if(votedivide[i] > winvotes && par_ideology[i] == par_ideology[presnum] && (par_ideology[presnum] ==4 || par_ideology[presnum] ==0))
+                {
+                    winvotes = votedivide[i];
+                    winnum = i;
+                } else if (votedivide[i] > winvotes && (par_ideology[presnum] <4 || par_ideology[presnum] >0))
                 {
                     winvotes = votedivide[i];
                     winnum = i;
@@ -826,7 +841,19 @@ void seatdistrib()
     }
     for(int i=0; i!=10; i++)
     {
-        par_seats[i] += (((district*par_votes_percent[i])/100)*25)/100;
+        if(par_auth[presnum] <85)
+        {
+            par_seats[i] += (((district*par_votes_percent[i])/100)*25)/100;
+        } else
+        {
+            if(par_ideology[i]== par_ideology[presnum] && (par_ideology[presnum] ==0 || par_ideology[presnum] == 4))
+            {
+                par_seats[i] += (((district*par_votes_percent[i])/100)*25)/100;
+            } else
+            {
+                par_seats[presnum] += (((district*par_votes_percent[i])/100)*25)/100;
+            }
+        }
     }
     district =0;
     for(int i=0; i!=10; i++){district+=par_seats[i];}
@@ -880,7 +907,7 @@ void coalitionform()
             {
                 oppopoints -= 10;
             }
-            if(par_seats[presnum]> district/2)
+            if(par_seats[presnum]> district/2 && par_auth[presnum]<65)
             {
                 govpoints += 50;
             }
