@@ -43,6 +43,8 @@ string dynasty[5][5] = {
     {"","","","",""},
 };
 
+int pp[10] = {0,0,0,0,0,0,0,0,0,0};
+
 string backg[8] = {"Orator","Reformer", "Idealist", "Pragmatist", "Compromiser", "Bureaucrat", "Outsider", "Strongman"};
 int par_bg[10]= {0,0,0,0,0,0,0,0,0,0};
 
@@ -81,6 +83,7 @@ string primem = "";
 
 string preshistory[100];
 int presidents =0;
+
 
 string par_president[11] = {"","","","","","","","","",""};
 int yelect =year;
@@ -375,6 +378,10 @@ void update()
         dynfluence[par_ideology[presnum]] += 10;
         for(int i=0; i!=5; i++){dynfluence[i]+=3;}
     }
+    
+    pp[presnum]+=10;
+    pp[pmnum]+=5;
+    pp[oppoleader]+=10;
     for(int i=0; i!=5; i++){dynfluence[i]-=2;if(dynfluence[i] <10){dynfluence[i] = 10;} if(dynfluence[i] > 90){dynfluence[i] = 90;}}
     for(int i =0; i!=10;i++)
     {
@@ -465,6 +472,8 @@ void update()
             }
         }
         
+        pp[i] += 5;
+
         
         par_support[i] = (rand()%((100+ (par_support[i]/10))+ par_votes_percent[i])+1)- ((year - yelect)/10);
         par_support[i] += (par_seats[i]*100)/district;
@@ -472,6 +481,7 @@ void update()
         {
             par_support[i] += par_support[i]*0.1;;
         }
+        par_support[i]+=pp[i];
         
             par_support_percent[i] =0;
             par_votes_percent[i] =0;
@@ -479,6 +489,7 @@ void update()
             par_seats[i] =0;
         
     }
+    
         govmembers =0;
         oppomembers =0;
         govseats =0;
@@ -513,7 +524,7 @@ void polls()
     string debug_input = "";
     
     
-    while(rempop >population*0.10)
+    while(rempop >population*0.25)
     {
         if(midterm == true && prelec == false)
         {
@@ -563,6 +574,7 @@ void polls()
         float cut = 0;
         int partido[5] = {0,0,0,0,0};
         int factions[10] = {0,0,0,0,0,0,0,0,0,0};
+        int otheradd=0;
 
         for(int i=0; i!=10; i++)
         {
@@ -584,31 +596,31 @@ void polls()
         
         for(int i=0; i!=10; i++)
         {
-            cut = (float) par_support_percent[i]/100;
+            cut = (float) par_support_percent[i]/1000;
             regular =0;
-            myon = (rempop*0.1)*cut;
+            myon = rempop*cut;
             myon+=1;
             regular = rand()%myon;
             if(ismajor[i] == true)
             {
-                regular += regular*2;
+                regular += regular*0.75;
             }
-            if(i == presnum&& rand()%100 < par_auth[i])
+            if(i == presnum&& (rand()%15)+85 < par_auth[i])
             {
-                regular+= regular*2;
+                regular+= regular;
             }
             if(i == presnum)
             {
-                regular += regular*0.75;
+                regular += regular*0.50;
             }
             if(i == oppoleader)
             {
-                regular+= regular*1.5;
+                regular+= regular*0.75;
             }
             int regadd =regular;
             
-            regadd = regular/(partido[par_ideology[i]]+1);
-            regadd = regadd/ ((factions[i]*2)+1);
+            //regadd = regular/(partido[par_ideology[i]]+1);
+            //regadd = regadd/ ((factions[i]*2)+1);
             if(rand()%100 == chance)
             {
                 regadd += rand()%(tickremove+1);
@@ -617,23 +629,32 @@ void polls()
             {
                 if(par_ideology[i] == par_ideology[b])
                 {
-                    par_votes[b] += regular/(partido[par_ideology[i]]+1);
+                    otheradd=0;
+                    otheradd =regular/(partido[par_ideology[i]]+1);
+                    par_votes[b] += otheradd;
+                    tickremove += otheradd;
                     regadd +=regular/(partido[par_ideology[i]]+1);
                 }
                 if(par_name[i] == par_name[b])
                 {
-                    par_votes[b] += regular/ ((factions[i]*2)+1);
+                    otheradd=0;
+                    otheradd =regular/ ((factions[i]*2)+1);
+                    par_votes[b] += otheradd;
+                    tickremove += otheradd;
                     regadd +=regular/ ((factions[i]*2)+1);
                 }
                 
             }
-            par_votes[i] += regadd;
-            rempop -= regadd;
             tickremove += regadd;
+            par_votes[i] += regadd;
         }
         
         //cout << "G";
         hasvoted = false;
+        if(tickremove > rempop)
+        {
+            tickremove = rempop*0.15;
+        }
         rempop-= tickremove;
         totvotes =0;
         
@@ -641,6 +662,7 @@ void polls()
         {
             totvotes += par_votes[i];
         }
+        
         //cout<<"-";
         for(int i=0; i!=10;i++)
         {
@@ -666,7 +688,7 @@ void polls()
         {
             totvotes =0;
         }
-        cout << "Total votes counted: " << totvotes << " / " << population << endl;
+        cout << "Total votes counted: " << population-rempop << " / " << population << endl;
         sleep(1);
         system("clear");
     }
