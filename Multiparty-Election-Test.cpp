@@ -12,27 +12,27 @@
 using namespace std;
 
 string names[5][15]={
-    {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party"},
-    {"Socialist Party","National Progressive Party","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party"},
-    {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","Liberal Democratic Party","National Republican Party"},
-    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance"},
-    {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement"}
+    {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party", "Democratic Worker's Party", "United Progressive Movement", "National-Progressive Party", "Socialist People's Movement", "Revolution '22"},
+    {"Socialist Party","National Progressive Party","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party", "Progressive Socialist Party", "United Progressive Movement", "Democratic Labor Intiative", "Socialist Republics", "Democracy 1922"},
+    {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","Liberal Democratic Party","National Republican Party", "National Center Party", "Stability and Unity", "National List", "Progressive Conservative Party", "Rally of 1922"},
+    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance", "Conservative People's Action", "National Initiative on Democratic Reforms", "Folk Party", "United Action Now!", "1922 Conservative League"},
+    {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement", "Traditionalist Action Party", "New Democratic Party", "National-Progressive Party", "Folk Party", "22 Unity"}
 };
 
 string ideologies[5][5] = {
-    {"Communism","Marxism","Populism","Market Socialism","National Communism"},
+    {"Communism","Marxism","Populism","Market Socialism","Left Corporatism"},
     {"Socialism","Progressive Democracy","Populism","Religious Socialism","Social Liberalism"},
     {"Liberalism","Corporatism","Populism","Religious Liberalism","Big Tent"},
-    {"Conservatism","Market Liberalism","Populism","Dynastic Democracy","Libertarianism"},
-    {"Nationalism","Traditionalism","Fascism","Populism","Corporatocracy"},
+    {"Conservatism","Market Liberalism","Populism","Dynastic Democracy","Religious Conservatism"},
+    {"Nationalism","Traditionalism","Fascism","Populism","Right Corporatism"},
 };
 
 string ideologies_call[5][5] = {
-    {"Communist","Marxist","Leftist","Market Socialist","National Communist"},
+    {"Communist","Marxist","Leftist","Market Socialist","Left Corporatism"},
     {"Socialist","Progressive","Leftist","Religious Socialist","Social Liberal"},
     {"Liberal","Corporate","Centrist","Religious Liberal","United"},
     {"Conservative","Liberal Democratic","Rightist","Democratic","Libertarian"},
-    {"Nationalist","Traditionalist","Fascist","Rightist","Corporatist"},
+    {"Nationalist","Traditionalist","Fascist","Rightist","Right Corporatism"},
 };
 
 string dynasty[5][5] = {
@@ -281,7 +281,7 @@ void setup()
     {
         par_ideology[i] = rand()%5;
         par_subideology[i] = rand()%5;
-        par_name[i] = rand()%10;
+        par_name[i] = rand()%15;
         par_president[i] = namegen(par_ideology[i], i);
         par_primem[i] = namegen(par_ideology[i], i);
         par_personality[i] = rand()%100;
@@ -391,48 +391,6 @@ void update()
             par_subideology[i] = rand()%5;
             par_name[i] = rand()%15;
             par_auth[i] = rand()%100;
-            if(par_name[i] >=10)
-            {
-                if(rand()%100<50)
-                {
-                    names[par_ideology[i]][par_name[i]]= to_string(year) + " Movement";
-                }else
-                {
-                    switch(rand()%10)
-                    {
-                        case 1:
-                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Party";
-                            break;
-                        case 2:
-                            names[par_ideology[i]][par_name[i]]= "Alliance of "+ ideologies_call[par_ideology[i]][par_subideology[i]]+ "s";
-                            break;
-                        case 3:
-                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Movement";
-                            break;
-                        case 4:
-                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Union";
-                            break;
-                        case 5:
-                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Action Party";
-                            break;
-                        case 6:
-                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " League";
-                            break;
-                        case 7:
-                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Coalition";
-                            break;
-                        case 8:
-                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Citizen's Party";
-                            break;
-                        case 9:
-                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " List";
-                            break;
-                        default:
-                            names[par_ideology[i]][par_name[i]]= ideologies_call[par_ideology[i]][par_subideology[i]]+ " Bloc";
-                            break;
-                    }
-                }
-            }
             par_president[i] = namegen(par_ideology[i], i);
             par_primem[i] = namegen(par_ideology[i], i);
             par_personality[i] = rand()%100;
@@ -513,7 +471,6 @@ void polls()
         par_support_percent[i] = (par_support[i]*100)/(supporttotal+1);
         
     }
-    int totsup =0;
     //cout << "A";
     int tickremove =0;
     int rempop = population;
@@ -718,15 +675,8 @@ void preselec()
         {
             if(invot[i] > winvotes && par_votes_percent[i] > avgpctg)
             {
-                if(par_auth[presnum] <85)
-                {
                     winnum = i;
                     winvotes = invot[i];
-                } else
-                {
-                    winnum = presnum;
-                    winvotes = invot[i];
-                }
             }
         }
         int remove =0;
