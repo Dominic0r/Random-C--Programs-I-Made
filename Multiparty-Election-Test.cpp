@@ -1222,7 +1222,7 @@ int main()
     switch(estatus/25)
     {
         case 4:
-            cout << "Booming" << endl;;
+            cout << "Booming" << endl;
             break;
         case 3:
             cout << "Booming" << endl;
