@@ -13,9 +13,9 @@ using namespace std;
 
 string names[5][15]={
     {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party", "Democratic Worker's Party", "United Progressive Movement", "National-Progressive Party", "Socialist People's Movement", "Revolution '22"},
-    {"Socialist Party","National Progressive Party","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party", "Progressive Socialist Party", "United Progressive Movement", "Democratic Labor Intiative", "Socialist Republics", "Democracy 1922"},
+    {"Socialist Party","Federation of Union Democrats","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party", "Progressive Socialist Party", "United Progressive Movement", "Democratic Labor Intiative", "Socialist Republicans", "Democracy 1922"},
     {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","Liberal Democratic Party","National Republican Party", "National Center Party", "Stability and Unity", "National List", "Progressive Conservative Party", "Rally of 1922"},
-    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance", "Conservative People's Action", "National Initiative on Democratic Reforms", "Folk Party", "United Action Now!", "1922 Conservative League"},
+    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance", "Federal Party", "People's Initiative on National Reforms", "Folk Party", "United Action Now!", "1922 Conservative League"},
     {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement", "Traditionalist Action Party", "New Democratic Party", "National-Progressive Party", "Folk Party", "22 Unity"}
 };
 
@@ -109,7 +109,11 @@ int gmemnum[11];
 
 bool parallel = true;
 
+int prsts=0; // president seats
+
 int competence[11]={0,0,0,0,0,0,0,0,0,0};
+
+int estatus =50;
 
 bool ismajor[11] = {false,false,false,false,false,false,false,false,false,false};
 
@@ -139,7 +143,7 @@ int govyear = year;
 string ghistory[100];
 int govs= 0;
 int prevpm =11;
-
+int prevdstr =0;
 int pmyear =1920;
 
 int dynfluence[5] = {0,0,0,0,0};
@@ -287,7 +291,7 @@ void setup()
         par_personality[i] = rand()%100;
         par_bg[i] = rand()%8;
         par_support[i] = (rand()%100)+25;
-        competence[i] = rand()%100;
+        competence[i] = (rand()%10)-5;
         par_auth[i] = rand()%100;
         if(rand()%100 < par_personality[i])
         {
@@ -298,38 +302,42 @@ void setup()
 
 void eco()
 {
-    int dvsr = (rand()%15)+5;
-    regions = district/dvsr;
-    int succeed =0, none =0;
-    succeed = competence[presnum];
-    none = (rand()%(100-competence[presnum]))+competence[presnum];
-    int decider =0;
-    int all =0;
-    for(int i=0; i!=regions; i++)
+    int presseats =0;
+    int equib = 10;
+    if(midterm == true)
     {
-        decider = rand()%100;
-        if(decider < succeed)
-        {
-            r_dev[i]++;
-        }else if(decider >= succeed && decider <= none)
-        {
-            
-        }else if (decider > none)
-        {
-            r_dev[i]--;
-        }
-        if(r_dev[i] < 0)
-        {
-            r_dev[i] = 0;
-        }
-        if(r_dev[i] > 20)
-        {
-            r_dev[i] = 20;
-        }
-        all+=r_dev[i];
+        prsts = par_seats[presnum];
     }
-    avdev = (all*100)/ (regions*20);
+    presseats = (prsts*100)/district;
+    /*cout << prsts << endl;
+    cout << district << endl;
+    cout << presseats << endl;
+    cout <<competence[presnum]*(presseats/10) << endl;
+    cin>> unput;*/
+    estatus += competence[presnum]*(presseats/10);
     
+    if(rand()%10<=competence[presnum])
+    {
+        equib++;
+    }
+    
+    if(estatus > 100)
+    {
+        estatus = 100;
+    }
+    if(estatus < -100)
+    {
+        estatus = -100;
+    }
+    
+    if(estatus >equib)
+    {
+        estatus -=10;
+    }
+    if(estatus <equib)
+    {
+        estatus+=10;
+    }
 }
 
 void timeup()
@@ -350,18 +358,38 @@ void timeup()
             ly_pres = year;
         }else if(ly_pm+5 == ly_pres+4) // if both elections happent he same year
         {
-            parallel = true;
-            midterm = false;
-            prelec = true;
-            year = year+4;
-            ly_pm = year;
-            ly_pres = year;
+            if(year == 1922)
+            {
+                parallel = true;
+                midterm = false;
+                prelec = true;
+                year = year+4;
+                ly_pm = year;
+                ly_pres = year;
+            } else
+            {
+                parallel = true;
+                midterm = true;
+                prelec = false;
+                year = year+4;
+                ly_pm = year;
+                ly_pres = year;
+            }
         }
     } else
     {
-        parallel = false;
-        midterm = true;
-        prelec = false;
+        if(year == 1922)
+        {
+            parallel = false;
+            midterm = true;
+            prelec = false;
+        }else
+        {
+            parallel = false;
+            midterm = false;
+            prelec = true;
+
+        }
     }
 }
 
@@ -397,10 +425,10 @@ void update()
             par_support[i] = (rand()%100)+25;
             par_bg[i] = rand()%8;
             foundingyear[i] = year;
-            competence[i] = rand()%100;
+            competence[i] = (rand()%10)-5;
         }
         
-        if(rand()%30 > par_votes_percent[i]- (year-yelect) or (par_auth[i] < 70 && year-yelect >= 4 && president == par_president[i]))
+        if(rand()%30 > par_votes_percent[i]- (year-yelect) or (par_auth[i] < 85 && year-yelect >= 4 && president == par_president[i]))
         {
             par_president[i] = namegen(par_ideology[i], i);
             if(rand()%district<par_seats[i])
@@ -409,7 +437,7 @@ void update()
             }
             par_personality[i] = rand()%100;
             par_subideology[i] = rand()%5;
-            competence[i] = rand()%100;
+            competence[i] = (rand()%10)-5;
             par_bg[i] = rand()%8;
             int oldauth = par_auth[i]/10;
             par_auth[i] = (rand()%100)+oldauth;
@@ -440,6 +468,11 @@ void update()
             par_support[i] += par_support[i]*0.1;;
         }
         par_support[i]+=pp[i];
+        if(i == presnum)
+        {
+            par_support[i] += estatus/5;
+        }
+        
         
             par_support_percent[i] =0;
             par_votes_percent[i] =0;
@@ -1185,6 +1218,38 @@ int main()
         disp_parlo();
     }
     //cout<< "\n\nAverage Development Level: " << avdev << "%" << endl;
+    cout << "The Economy is ";
+    switch(estatus/25)
+    {
+        case 4:
+            cout << "Booming" << endl;;
+            break;
+        case 3:
+            cout << "Booming" << endl;
+            break;
+        case 2:
+            cout << "Rapidly Growing" << endl;
+            break;
+        case 1:
+            cout << "Steadily Growing" << endl;
+            break;
+        case 0:
+            cout << "Stable" << endl;
+            break;
+        case -1:
+            cout << "Stagnating" << endl;
+            break;
+        case -2:
+            cout << "Receding" << endl;
+            break;
+        case -3:
+            cout << "Depressing" << endl;
+            break;
+        case -4:
+            cout << "Depressing" << endl;
+            break;
+    }
+    //cout << estatus << endl;
     
     kami:
     
@@ -1215,8 +1280,8 @@ int main()
     }
     if(parallel == false)
     {
-        update();
         eco();
+        update();
     }
     timeup();
     goto game;
