@@ -1153,7 +1153,29 @@ void disp_parlo()
     cout << "President: " << president << " (" << names[par_ideology[presnum]][par_name[presnum]] << " | " << pressideo<< " | " << presbg << ")" << " | Elected: " << yelect << endl;
     cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
     cout << endl;
+    bool istotal =false;
+    for(int i=0; i!=10; i++)
+    {
+        if(govcomp[i] == 100)
+        {
+            istotal = true;
+        }
+    }
     
+    int tgcomp =0, tocomp =0;
+    for(int i=0; i!=10; i++)
+    {
+        if(ingov[i])
+        {
+            tgcomp+= govcomp[i];
+        }else{
+            tocomp+= govcomp[i];
+        }
+        
+    }
+    
+    if(istotal)
+    {
         cout << "Government Composition" << endl;
         for(int i=0; i!=10; i++)
         {
@@ -1161,13 +1183,33 @@ void disp_parlo()
             {
                 cout << par_president[i] << " (" << names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")"<< ": " << govcomp[i] << "%" << endl;
             }
-            cout << endl;
-            cout << "Opposition in Government" << endl;
-            if(govcomp[i] >0 && !ingov[i])
+        }
+    }else
+    {
+        cout << "=====Joint Government Composition=====" << endl;
+        cout << "Supportive Parties in Government (" << tgcomp << "%)" << endl;
+            for(int i=0; i!=10; i++)
             {
-                cout << par_president[i] << " (" << names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")"<< ": " << govcomp[i] << "%" << endl;
+                if(govcomp[i] >0 && ingov[i])
+                {
+                    cout << par_president[i] << " (" << names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")"<< ": " << govcomp[i] << "%" << endl;
+                }
+            }
+        if(tocomp >0)
+        {
+            cout << endl;
+            cout << "Opposition Parties in Government (" << tocomp << "%)" << endl;
+            for(int i=0; i!=10; i++)
+            {
+                if(govcomp[i] >0 && !ingov[i])
+                {
+                    cout << par_president[i] << " (" << names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")"<< ": " << govcomp[i] << "%" << endl;
+                }
+                
             }
         }
+    }
+    cout << endl;
         cout << "\n==========\n" << endl;
     
 
@@ -1181,7 +1223,8 @@ void disp_parlo()
         
     }
     cout << "\n==========\n" << endl;
-    
+    if(opposeats >0)
+    {
         cout << "Opposition Coalition: " << opposeats << " seats" << endl;
         for(int i=0; i!=10; i++)
         {
@@ -1190,7 +1233,7 @@ void disp_parlo()
                 cout << par_president[i] << " (" << names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")"<< ": " << par_seats[i] << " seats"<< endl;
             }
         }
-    
+    }
     
     
     cout << endl;
