@@ -12,11 +12,11 @@
 using namespace std;
 
 string names[5][15]={
-    {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party", "Democratic Worker's Party", "United Progressive Movement", "National-Progressive Party", "Socialist People's Movement", "Revolution '22"},
-    {"Socialist Party","Federation of Union Democrats","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party", "Progressive Socialist Party", "United Progressive Movement", "Democratic Labor Intiative", "Socialist Republicans", "Democracy 1922"},
-    {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","Liberal Democratic Party","National Republican Party", "National Center Party", "Stability and Unity", "National List", "Progressive Conservative Party", "Rally of 1922"},
-    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance", "Federal Party", "People's Initiative on National Reforms", "Folk Party", "United Action Now!", "1922 Conservative League"},
-    {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement", "Traditionalist Action Party", "New Democratic Party", "National-Progressive Party", "Folk Party", "22 Unity"}
+    {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party", "Democratic Worker's Party", "United Progressive Movement", "National-Progressive Party", "Socialist People's Movement", "People's Revolution"},
+    {"Socialist Party","Federation of Union Democrats","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party", "Progressive Socialist Party", "United Progressive Movement", "Democratic Labor Intiative", "Socialist Republicans", "United Democrats for Social Reform"},
+    {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","Liberal Democratic Party","National Republican Party", "National Center Party", "Stability and Unity", "National List", "Progressive Conservative Party", "Rally for Democracy"},
+    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance", "Federal Party", "People's Initiative on National Reforms", "Folk Party", "United Action Now!", "National Conservative Democratic League"},
+    {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement", "Traditionalist Action Party", "New Democratic Party", "National-Progressive Party", "Folk Party", "National Identity and Unity Party"}
 };
 
 string ideologies[5][5] = {
@@ -83,6 +83,8 @@ string primem = "";
 
 string preshistory[100];
 int presidents =0;
+
+int govcomp[10] = {0,0,0,0,0,0,0,0,0,0};
 
 
 string par_president[11] = {"","","","","","","","","",""};
@@ -953,6 +955,53 @@ void coalitionform()
     
 }
 
+void govcompcalc()
+{
+    for(int i =0; i!=10; i++){govcomp[i] = 0;}
+    int pscore[10] = {0,0,0,0,0,0,0,0,0,0};
+    int winvotes =0;
+    int winnum = 11;
+    int points[10] = {1,1,1,1,1,1,1,1,1,1};
+    for(int i=0; i!=10; i++)
+    {
+        
+            pscore[i] = par_seats[i];
+        
+    }
+    int gco =0;
+    while(gco<100)
+    {
+        for(int i=0; i!=10; i++)
+        {
+                if(pscore[i] > winvotes)
+                {
+                    winvotes = pscore[i];
+                    winnum = i;
+                }
+        }
+        
+        if(ingov[winnum])
+        {
+            govcomp[winnum]+=10;
+            gco +=10;
+        } else
+        {
+            govcomp[winnum] +=5;
+            gco+=5;
+        }
+        if(gco > 100)
+        {
+            int c = gco-100;
+            govcomp[winnum]-= c;
+        }
+        
+        points[winnum]++;
+        pscore[winnum] = par_seats[winnum]/points[winnum];
+        winvotes =0;
+        winnum = 11;
+    }
+}
+
 void govform()
 {
     int points[10]= {0,0,0,0,0,0,0,0,0,0};
@@ -1105,6 +1154,23 @@ void disp_parlo()
     cout << "Prime Minister: " << primem << " (" << names[par_ideology[pmnum]][par_name[pmnum]]<< " | " << ideologies[par_ideology[pmnum]][par_subideology[pmnum]] << ")" << endl;
     cout << endl;
     
+        cout << "Government Composition" << endl;
+        for(int i=0; i!=10; i++)
+        {
+            if(govcomp[i] >0 && ingov[i])
+            {
+                cout << par_president[i] << " (" << names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")"<< ": " << govcomp[i] << "%" << endl;
+            }
+            cout << endl;
+            cout << "Opposition in Government" << endl;
+            if(govcomp[i] >0 && !ingov[i])
+            {
+                cout << par_president[i] << " (" << names[par_ideology[i]][par_name[i]] << " | " << ideologies[par_ideology[i]][par_subideology[i]] << " | " << backg[par_bg[i]] << ")"<< ": " << govcomp[i] << "%" << endl;
+            }
+        }
+        cout << "\n==========\n" << endl;
+    
+
     cout << "Government Coalition: " << govseats << " seats" << endl;
     for(int i=0; i!=10; i++)
     {
@@ -1194,6 +1260,11 @@ int main()
         coalitionform();
         
         govform();
+        
+        if(govseats >= opposeats)
+        {
+            govcompcalc();
+        }
         
         checkmajors();
     }
