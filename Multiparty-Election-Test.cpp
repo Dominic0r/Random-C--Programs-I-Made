@@ -547,34 +547,34 @@ void update()
             switch((year-yelect)/10)
             {
                 case 1:
-                    par_support[i] *= 0.85;
-                    break;
-                case 2:
-                    par_support[i] *= 0.8;
-                    break;
-                case 3:
                     par_support[i] *= 0.75;
                     break;
-                case 4:
+                case 2:
                     par_support[i] *= 0.7;
                     break;
-                case 5:
+                case 3:
                     par_support[i] *= 0.65;
                     break;
-                case 6:
+                case 4:
                     par_support[i] *= 0.6;
                     break;
-                case 7:
+                case 5:
                     par_support[i] *= 0.55;
                     break;
-                case 8:
+                case 6:
                     par_support[i] *= 0.5;
                     break;
-                case 9:
+                case 7:
                     par_support[i] *= 0.45;
                     break;
-                case 10:
+                case 8:
                     par_support[i] *= 0.4;
+                    break;
+                case 9:
+                    par_support[i] *= 0.35;
+                    break;
+                case 10:
+                    par_support[i] *= 0.3;
                 default:
                     par_support[i] += 0;
             }
