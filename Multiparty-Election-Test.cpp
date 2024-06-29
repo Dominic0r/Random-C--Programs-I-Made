@@ -109,6 +109,8 @@ int govmembers =0;
 int govseats =0;
 int gmemnum[11];
 
+int parlec = 1922;
+
 bool parallel = true;
 
 int prsts=0; // president seats
@@ -133,6 +135,8 @@ int oppoleader = 11;
 int termlength =0;
 
 bool ingov[11] = {false,false,false,false,false,false,false,false,false,false};
+
+bool oneparty[11] = {false,false,false,false,false,false,false,false,false,false};
 
 int foundingyear[11] = {year,year,year,year,year,year,year,year,year,year};
 
@@ -167,6 +171,7 @@ string namegen(int x, int y)
      
         string bloc1,bloc2, bloc3;
         string fname, lname;
+    
         bloc1 = consonant[rand()%numcon] + vowel[rand()%numvow];
             if(rand()%10 < 3)
             {
@@ -235,7 +240,7 @@ void dygen()
     string lcc[20]= {"b","b","k","d","g","h","h","l","l","m","n","p","r","s","s","t","t","w","w","y"};
         string vowel[13] = {"a","a","a","a","a","e","i","i","i","o","o","o","u"};
     string bvow[13]= {"A","A","A","A","A","E","I","I","I","O","O","O","U"};
-        string aftercon[11] = {"ng","'ng","m","h","n","k","k","p","p","t","y"};
+        string aftercon[11] = {"ng","ng","m","h","n","k","k","p","p","t","y"};
      
         string bloc1,bloc2, bloc3;
         string lname;
@@ -424,6 +429,7 @@ void checkrun()
 {
     int score =0;
     int psp =0;
+    int cands =0;
     for(int i=0; i!=10; i++)
     {
         score =0;
@@ -442,15 +448,39 @@ void checkrun()
             score += 20;
         }
         
-        if(score >= 25)
+        if(par_auth[presnum]>=85 && i != presnum)
+        {
+            score -=10;
+        }
+        if(par_auth[presnum] >= 85 && i == presnum)
+        {
+            score += 20;
+        }
+        if(i == oppoleader)
+        {
+            score +=20;
+        }
+        
+        if(score >= 10)
         {
             isrunning[i] = true;
+            cands++;
+            oneparty[i] = true;
+            
         } else
         {
             isrunning[i] = false;
         }
         //cout << names[par_ideology[i]][par_name[i]] << " " << score << endl;
         
+    }
+    
+    if(cands>1)
+    {
+        for(int i=0; i!=10; i++)
+        {
+            oneparty[i] = false;
+        }
     }
     
     
@@ -494,6 +524,7 @@ void update()
             par_support[i] = (rand()%100)+25;
             par_bg[i] = rand()%8;
             foundingyear[i] = year;
+            pp[i] =0;
             competence[i] = (rand()%10)-5;
             isrunning[i] = false;
         }
@@ -505,6 +536,7 @@ void update()
             {
                 par_president[i] = par_primem[i];
             }
+            pp[i] =pp[i]/2;
             par_personality[i] = rand()%100;
             par_subideology[i] = rand()%5;
             competence[i] = (rand()%10)-5;
@@ -535,16 +567,13 @@ void update()
         par_support[i] += (par_seats[i]*100)/district;
         if(i == presnum || i == pmnum || i == oppoleader)
         {
-            par_support[i] += par_support[i]*0.1;;
+            par_support[i] += par_support[i]*0.1;
         }
         par_support[i]+=pp[i];
-        if(i == presnum)
-        {
-            par_support[i] += estatus/5;
-        }
+        
         if(i == presnum && year - yelect >4 && par_auth[i] <85)
         {
-            switch((year-yelect)/10)
+            switch((year-parlec)/10)
             {
                 case 1:
                     par_support[i] *= 0.75;
@@ -595,15 +624,15 @@ void update()
                 
                 if(par_auth[i] >= 60)
                 {
-                    par_support[i] += par_support[i]*0.50;
+                    par_support[i] += par_support[i]*0.10;
                 } else
                 {
-                    par_support[i] -= par_support[i]*0.50;
+                    par_support[i] -= par_support[i]*0.10;
                 }
                 
                 if(i == presnum)
                 {
-                    par_support[i] -=par_support[i]*0.50;
+                    par_support[i] -=par_support[i]*0.15;
                 }
                 
                 break;
@@ -618,15 +647,15 @@ void update()
                 
                 if(par_auth[i] >= 60)
                 {
-                    par_support[i] += par_support[i]*0.25;
+                    par_support[i] += par_support[i]*0.05;
                 } else
                 {
-                    par_support[i] -= par_support[i]*0.25;
+                    par_support[i] -= par_support[i]*0.05;
                 }
                 
                 if(i == presnum)
                 {
-                    par_support[i] -=par_support[i]*0.25;
+                    par_support[i] -=par_support[i]*0.10;
                 }
                 break;
             case -1:
@@ -640,10 +669,10 @@ void update()
                 
                 if(par_auth[i] >= 60)
                 {
-                    par_support[i] += par_support[i]*0.1;
+                    par_support[i] += par_support[i]*0.01;
                 } else
                 {
-                    par_support[i] -= par_support[i]*0.1;
+                    par_support[i] -= par_support[i]*0.01;
                 }
                 
                 if(i == presnum)
@@ -662,15 +691,15 @@ void update()
                 
                 if(par_auth[i] >= 60)
                 {
-                    par_support[i] -= par_support[i]*0.05;
+                    par_support[i] -= par_support[i]*0.005;
                 } else
                 {
-                    par_support[i] += par_support[i]*0.05;
+                    par_support[i] += par_support[i]*0.005;
                 }
                 
                 if(i == presnum)
                 {
-                    par_support[i] -=par_support[i]*0.05;
+                    par_support[i] -=par_support[i]*0.01;
                 }
                 break;
             case 1:
@@ -684,15 +713,15 @@ void update()
                 
                 if(par_auth[i] >= 60)
                 {
-                    par_support[i] -= par_support[i]*0.1;
+                    par_support[i] -= par_support[i]*0.01;
                 } else
                 {
-                    par_support[i] += par_support[i]*0.1;
+                    par_support[i] += par_support[i]*0.01;
                 }
                 
                 if(i == presnum)
                 {
-                    par_support[i] +=par_support[i]*0.1;
+                    par_support[i] +=par_support[i]*0.05;
                 }
                 break;
             case 2:
@@ -706,15 +735,15 @@ void update()
                 
                 if(par_auth[i] >= 60)
                 {
-                    par_support[i] -= par_support[i]*0.25;
+                    par_support[i] -= par_support[i]*0.05;
                 } else
                 {
-                    par_support[i] += par_support[i]*0.25;
+                    par_support[i] += par_support[i]*0.05;
                 }
                 
                 if(i == presnum)
                 {
-                    par_support[i] +=par_support[i]*0.25;
+                    par_support[i] +=par_support[i]*0.10;
                 }
                 break;
             case 3:
@@ -729,17 +758,22 @@ void update()
                 
                 if(par_auth[i] >= 60)
                 {
-                    par_support[i] -= par_support[i]*0.50;
+                    par_support[i] -= par_support[i]*0.10;
                 } else
                 {
-                    par_support[i] += par_support[i]*0.50;
+                    par_support[i] += par_support[i]*0.10;
                 }
                 
                 if(i == presnum)
                 {
-                    par_support[i] +=par_support[i]*0.50;
+                    par_support[i] +=par_support[i]*0.15;
                 }
                 break;
+        }
+        
+        if(oneparty[i] == true && par_auth[i] <85)
+        {
+            par_support[i] /= 2;
         }
         
         
@@ -748,6 +782,11 @@ void update()
             par_votes[i] =0;
             par_seats[i] =0;
         
+    }
+    
+    for(int i=0; i!=10; i++)
+    {
+        oneparty[i] = false;
     }
     
         govmembers =0;
@@ -1067,6 +1106,11 @@ void preselec()
         govyear = year;
         
     }
+    if(names[par_ideology[presnum]][par_name[presnum]] != names[par_ideology[winnum]][par_name[winnum]])
+    {
+        parlec = year;
+    }
+    
     president = par_president[winnum];
     presnum = winnum;
     
