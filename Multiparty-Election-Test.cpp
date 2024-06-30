@@ -348,6 +348,46 @@ void eco()
     cin>> unput;*/
     estatus += competence[presnum]*(presseats/10);
     
+    
+        estatus *=0.5;
+        switch((year-parlec)/10)
+        {
+            case 1:
+                estatus-=estatus*0.05;
+                break;
+            case 2:
+                estatus-=estatus*0.1;
+                break;
+            case 3:
+                estatus-=estatus*0.15;
+                break;
+            case 4:
+                estatus-=estatus*0.2;
+                break;
+            case 5:
+                estatus-=estatus*0.25;
+                break;
+            case 6:
+                estatus-=estatus*0.3;
+                break;
+            case 7:
+                estatus-=estatus*0.35;
+                break;
+            case 8:
+                estatus-=estatus*0.4;
+                break;
+            case 9:
+                estatus-=estatus*0.45;
+                break;
+            case 10:
+                estatus-=estatus*0.5;
+                break;
+        }
+    if(par_auth[presnum]>= 85)
+    {
+        estatus -= estatus*0.1;
+    }
+    
     if(rand()%10<=competence[presnum])
     {
         equib++;
@@ -434,8 +474,10 @@ void checkrun()
     {
         score =0;
         psp=0;
+        int totpp =1;
+        for(int b=0;b!=10;b++){totpp+=pp[b];}
         psp = (par_seats[i]*100)/(district+1);
-        score += (psp*0.25)+ (par_votes_percent[i]*0.30) + ((rand()%100)*0.35)+ 10;
+        score += (psp*0.25)+ (par_votes_percent[i]*0.25) + ((rand()%100)*0.25)+ (((pp[i]*100)/totpp)*0.25);
         
         
         if(ingov[i] && i != presnum)
@@ -561,7 +603,27 @@ void update()
         }
         
         pp[i] += 5;
-
+        
+        if(rand()%10<5)
+        {
+            competence[i]++;
+        }else
+        {
+            competence[i]--;
+        }
+        if(competence[i]>5)
+        {
+            competence[i] =5;
+        }
+        if(competence[i]<-5)
+        {
+            competence[i] = -5;
+        }
+        
+        if(i== presnum && par_auth[i] > 85)
+        {
+            competence[i]--;
+        }
         
         par_support[i] = (rand()%((100+ (par_support[i]/10))+ par_votes_percent[i])+1)- ((year - yelect)/10);
         par_support[i] += (par_seats[i]*100)/district;
@@ -571,7 +633,7 @@ void update()
         }
         par_support[i]+=pp[i];
         
-        if(i == presnum && year - yelect >4 && par_auth[i] <85)
+        if(i == presnum && year - parlec >4)
         {
             switch((year-parlec)/10)
             {
@@ -608,6 +670,44 @@ void update()
                     par_support[i] += 0;
             }
             
+        }
+        
+        if(i!=presnum && year-parlec >4)
+        {
+            switch((year-parlec)/10)
+            {
+                case 1:
+                    par_support[i] += par_support[presnum]* 0.2;
+                    break;
+                case 2:
+                    par_support[i] += par_support[presnum]* 0.25;
+                    break;
+                case 3:
+                    par_support[i] += par_support[presnum]* 0.3;
+                    break;
+                case 4:
+                    par_support[i] += par_support[presnum]* 0.35;
+                    break;
+                case 5:
+                    par_support[i] += par_support[presnum]* 0.4;
+                    break;
+                case 6:
+                    par_support[i] += par_support[presnum]* 0.45;
+                    break;
+                case 7:
+                    par_support[i] += par_support[presnum]* 0.5;
+                    break;
+                case 8:
+                    par_support[i] += par_support[presnum]* 0.55;
+                    break;
+                case 9:
+                    par_support[i] += par_support[presnum]* 0.6;
+                    break;
+                case 10:
+                    par_support[i] += par_support[presnum]* 0.65;
+                default:
+                    par_support[i] += 0;
+            }
         }
         
         switch(estatus/25)
