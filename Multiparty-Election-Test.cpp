@@ -12,11 +12,11 @@
 using namespace std;
 
 string names[5][15]={
-    {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party", "Democratic Worker's Party", "United Progressive Movement", "National-Progressive Party", "Socialist People's Movement", "People's Revolution"},
-    {"Socialist Party","Federation of Union Democrats","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party", "Progressive Socialist Party", "United Progressive Movement", "Democratic Labor Intiative", "Socialist Republicans", "United Democrats for Social Reform"},
+    {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party", "Democratic Worker's Party", "United Progressive Movement", "National-Progressive Party", "Socialist People's Movement", "Revolutionary Peaasant Party"},
+    {"Socialist Party","Federation of Union Democrats","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party", "Progressive Socialist Party", "United Progressive Movement", "Democratic Labor Intiative", "Socialist Republicans", "Forward Party"},
     {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","Liberal Democratic Party","National Republican Party", "National Center Party", "Stability and Unity", "National List", "Progressive Conservative Party", "Rally for Democracy"},
-    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance", "Federal Party", "People's Initiative on National Reforms", "Folk Party", "United Action Now!", "National Conservative Democratic League"},
-    {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement", "Traditionalist Action Party", "New Democratic Party", "National-Progressive Party", "Folk Party", "National Identity and Unity Party"}
+    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance", "Federal Party", "United Farmer's Alliance", "Folk Party", "United Action Now!", "Constitutional Party"},
+    {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement", "Traditionalist Action Party", "New Democratic Party", "National-Progressive Party", "Folk Party", "Renewal"}
 };
 
 string ideologies[5][5] = {
@@ -325,6 +325,20 @@ void setup()
         par_support[i] = (rand()%100)+25;
         competence[i] = (rand()%10)-5;
         par_auth[i] = rand()%100;
+        
+        if(par_ideology[i] == 0 || par_ideology[i] == 4)
+        {
+            par_support[i] /=5;
+        } else if(par_ideology[i] == 1 || par_ideology[i] == 3)
+        {
+            par_support[i] /=2;
+            par_auth[i] /=2;
+        } else
+        {
+            par_support[i] *= 1.5;
+            par_auth[i] /=5;
+        }
+        
         if(rand()%100 < par_personality[i])
         {
             par_support[i] *= 2;
@@ -482,28 +496,28 @@ void checkrun()
         
         if(ingov[i] && i != presnum)
         {
-            score -= 30;
+            score -= 10;
         }
         
         if(i == presnum)
         {
-            score += 20;
+            score += 7;
         }
         
         if(par_auth[presnum]>=85 && i != presnum)
         {
-            score -=10;
+            score -=5;
         }
         if(par_auth[presnum] >= 85 && i == presnum)
         {
-            score += 20;
+            score += 7;
         }
         if(i == oppoleader)
         {
-            score +=20;
+            score +=7;
         }
         
-        if(score >= 10)
+        if(score >= 25)
         {
             isrunning[i] = true;
             cands++;
@@ -567,11 +581,43 @@ void update()
             par_bg[i] = rand()%8;
             foundingyear[i] = year;
             pp[i] =0;
+            
+            
+            if(estatus <0)
+            {
+                if(par_ideology[i] == 0 || par_ideology[i] == 4)
+                {
+                    par_support[i] *=1.5;
+                } else if(par_ideology[i] == 1 || par_ideology[i] == 3)
+                {
+                    par_support[i] /=2;
+                    par_auth[i] /=2;
+                } else
+                {
+                    par_support[i] /= 5;
+                    par_auth[i] /=5;
+                }
+            }else
+            {
+                
+                if(par_ideology[i] == 0 || par_ideology[i] == 4)
+                {
+                    par_support[i] /=5;
+                } else if(par_ideology[i] == 1 || par_ideology[i] == 3)
+                {
+                    par_support[i] /=2;
+                    par_auth[i] /=2;
+                } else
+                {
+                    par_support[i] *= 1.5;
+                    par_auth[i] /=5;
+                }
+            }
             competence[i] = (rand()%10)-5;
             isrunning[i] = false;
         }
         
-        if(rand()%30 > par_votes_percent[i]- (year-yelect) or (par_auth[i] < 85 && year-yelect >= 4 && president == par_president[i]))
+        if((rand()%30 > par_votes_percent[i] or (par_auth[i] < 85 && year-yelect >= 4 && president == par_president[i])) && midterm == true)
         {
             par_president[i] = namegen(par_ideology[i], i);
             if(rand()%district<par_seats[i])
