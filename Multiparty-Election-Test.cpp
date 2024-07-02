@@ -681,7 +681,7 @@ void update()
             isrunning[i] = false;
         }
         int threshold =0;
-        if(par_auth[i] >= 85)
+        if(par_auth[i] <= 85)
         {
             threshold = 45;
         }else
