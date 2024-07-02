@@ -688,7 +688,7 @@ void update()
         {
             threshold = 60;
         }
-        if(((rand()%30 > par_votes_percent[i] or (par_auth[i] > 85 && rand()%50 > par_votes_percent[i]))) && (rand()%20)+threshold <age[i] )
+        if((((rand()%30 > par_votes_percent[i] && par_auth[i] < 85)or (par_auth[i] >= 85 && rand()%50 > par_votes_percent[i]))) && (rand()%20)+threshold <age[i] )
         {
             par_president[i] = namegen(par_ideology[i], i);
             if(rand()%district<par_seats[i])
