@@ -681,29 +681,72 @@ void update()
             isrunning[i] = false;
         }
         int threshold =0;
-        if(par_auth[i] <= 85)
+        if(par_auth[i] >= 85)
         {
-            threshold = 45;
-        }else
+            threshold = 75;
+        } else
         {
-            threshold = 60;
+            threshold =60;
         }
-        if((par_auth[i] < 85 && rand()%30 < (par_seats_percent[i] - (age[i] - threshold))) || (par_auth[i] >=85 && rand()%50 < (par_seats_percent[i] - (age[i] - threshold))))
+        if(i == presnum)
         {
-            par_president[i] = namegen(par_ideology[i], i);
-            if(rand()%district<par_seats[i])
+            if(par_auth[i] < 85)
             {
-                par_president[i] = par_primem[i];
+                if(year -yelect > 4 || threshold + (rand()%25) < age[i])
+                {
+                    par_president[i] = namegen(par_ideology[i], i);
+                    if(rand()%district<par_seats[i])
+                    {
+                        par_president[i] = par_primem[i];
+                    }
+                    pp[i] =pp[i]/2;
+                    par_personality[i] = rand()%100;
+                    par_subideology[i] = rand()%5;
+                    competence[i] = (rand()%10)-5;
+                    par_bg[i] = rand()%8;
+                    int oldauth = par_auth[i]/10;
+                    par_auth[i] = (rand()%100)+oldauth;
+                    age[i] = (rand()%30)+25;
+                }
+            } else
+            {
+                if(threshold + (rand()%25) < age[i])
+                {
+                    par_president[i] = namegen(par_ideology[i], i);
+                    if(rand()%district<par_seats[i])
+                    {
+                        par_president[i] = par_primem[i];
+                    }
+                    pp[i] =pp[i]/2;
+                    par_personality[i] = rand()%100;
+                    par_subideology[i] = rand()%5;
+                    competence[i] = (rand()%10)-5;
+                    par_bg[i] = rand()%8;
+                    int oldauth = par_auth[i]/10;
+                    par_auth[i] = (rand()%100)+oldauth;
+                    age[i] = (rand()%30)+25;
+                }
             }
-            pp[i] =pp[i]/2;
-            par_personality[i] = rand()%100;
-            par_subideology[i] = rand()%5;
-            competence[i] = (rand()%10)-5;
-            par_bg[i] = rand()%8;
-            int oldauth = par_auth[i]/10;
-            par_auth[i] = (rand()%100)+oldauth;
-            age[i] = (rand()%30)+25;
+        } else
+        {
+            if(threshold + (rand()%25) < age[i])
+            {
+                par_president[i] = namegen(par_ideology[i], i);
+                if(rand()%district<par_seats[i])
+                {
+                    par_president[i] = par_primem[i];
+                }
+                pp[i] =pp[i]/2;
+                par_personality[i] = rand()%100;
+                par_subideology[i] = rand()%5;
+                competence[i] = (rand()%10)-5;
+                par_bg[i] = rand()%8;
+                int oldauth = par_auth[i]/10;
+                par_auth[i] = (rand()%100)+oldauth;
+                age[i] = (rand()%30)+25;
+            }
         }
+        
         int leadseatper = (par_seats[pmnum] *100)/district;
         
         if(rand()%50 > (leadseatper-(year-pmyear)))
