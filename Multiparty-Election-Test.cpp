@@ -11,7 +11,7 @@
 
 using namespace std;
 
-string names[5][15]={
+string names[6][16]={
     {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party", "Democratic Worker's Party", "United Progressive Movement", "National-Progressive Party", "Socialist People's Movement", "Revolutionary Peaasant Party"},
     {"Socialist Party","Federation of Union Democrats","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party", "Progressive Socialist Party", "United Progressive Movement", "Democratic Labor Intiative", "Socialist Republicans", "Forward Party"},
     {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","Liberal Democratic Party","National Republican Party", "National Center Party", "Stability and Unity", "National List", "Progressive Conservative Party", "Rally for Democracy"},
@@ -19,7 +19,7 @@ string names[5][15]={
     {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement", "Traditionalist Action Party", "New Democratic Party", "National-Progressive Party", "Folk Party", "Renewal"}
 };
 
-string ideologies[5][5] = {
+string ideologies[6][6] = {
     {"Communism","Marxism","Populism","Market Socialism","Left Corporatism"},
     {"Socialism","Progressive Democracy","Populism","Religious Socialism","Social Liberalism"},
     {"Liberalism","Corporatism","Populism","Religious Liberalism","Big Tent"},
@@ -27,7 +27,7 @@ string ideologies[5][5] = {
     {"Nationalism","Traditionalism","Fascism","Populism","Right Corporatism"},
 };
 
-string ideologies_call[5][5] = {
+string ideologies_call[6][6] = {
     {"Communist","Marxist","Leftist","Market Socialist","Left Corporatism"},
     {"Socialist","Progressive","Leftist","Religious Socialist","Social Liberal"},
     {"Liberal","Corporate","Centrist","Religious Liberal","United"},
@@ -35,7 +35,7 @@ string ideologies_call[5][5] = {
     {"Nationalist","Traditionalist","Fascist","Rightist","Right Corporatism"},
 };
 
-string dynasty[5][5] = {
+string dynasty[6][6] = {
     {"","","","",""},
     {"","","","",""},
     {"","","","",""},
@@ -43,12 +43,12 @@ string dynasty[5][5] = {
     {"","","","",""},
 };
 
-int pp[10] = {0,0,0,0,0,0,0,0,0,0};
+int pp[11] = {0,0,0,0,0,0,0,0,0,0};
 
-int age[10] = {0,0,0,0,0,0,0,0,0,0};
+int age[11] = {0,0,0,0,0,0,0,0,0,0};
 
-string backg[8] = {"Orator","Reformer", "Idealist", "Pragmatist", "Compromiser", "Bureaucrat", "Outsider", "Strongman"};
-int par_bg[10]= {0,0,0,0,0,0,0,0,0,0};
+string backg[9] = {"Orator","Reformer", "Idealist", "Pragmatist", "Compromiser", "Bureaucrat", "Outsider", "Strongman"};
+int par_bg[11]= {0,0,0,0,0,0,0,0,0,0};
 
 int year = 1922;
 
@@ -86,7 +86,7 @@ string primem = "";
 string preshistory[100];
 int presidents =0;
 
-int govcomp[10] = {0,0,0,0,0,0,0,0,0,0};
+int govcomp[11] = {0,0,0,0,0,0,0,0,0,0};
 
 
 string par_president[11] = {"","","","","","","","","",""};
@@ -146,7 +146,7 @@ int regions =0;
 int r_dev[999];
 int avdev=0;
 
-int par_auth[10];
+int par_auth[11];
 
 string curpm = "";
 int govyear = year;
@@ -156,8 +156,8 @@ int prevpm =11;
 int prevdstr =0;
 int pmyear =1920;
 
-int dynfluence[5] = {0,0,0,0,0};
-bool underdy[10] = {false,false,false,false,false,false,false,false,false,false};
+int dynfluence[6] = {0,0,0,0,0};
+bool underdy[11] = {false,false,false,false,false,false,false,false,false,false};
 
 int partiesincongress =0;
 
@@ -305,6 +305,30 @@ void dygen()
     }
 }
 
+void checkback(int i) //"Orator/","Reformer/", "Idealist", "Pragmatist", "Compromiser", "Bureaucrat/", "Outsider/", "Strongman/"
+{
+    if(backg[par_bg[i]] == "Reformer")
+    {
+        par_auth[i] /=2;
+    }
+    if(backg[par_bg[i]] == "Strongman")
+    {
+        par_auth[i] *= 1.5;
+    }
+    if(backg[par_bg[i]] == "Orator")
+    {
+        par_support[i] *= 1.5;
+    }
+    if(backg[par_bg[i]] == "Bureaucrat")
+    {
+        competence[i] +=3;
+    }
+    if(backg[par_bg[i]] == "Outsider")
+    {
+        par_support[i] *=1.25;
+    }
+}
+
 void setup()
 {
     dygen();
@@ -330,6 +354,8 @@ void setup()
         competence[i] = (rand()%10)-5;
         par_auth[i] = rand()%100;
         age[i] = (rand()%30)+25;
+        
+        checkback(i);
         
         if(par_ideology[i] == 0 || par_ideology[i] == 4)
         {
@@ -456,7 +482,7 @@ void timeup()
             
             for(int i=0;  i!=10; i++)
             {
-                age[i] += (ly_pres+5)-year;
+                age[i] += (ly_pres+4)-year;
             }
             
             year = ly_pres+4;
@@ -645,6 +671,7 @@ void update()
             foundingyear[i] = year;
             pp[i] =0;
             age[i] = (rand()%30)+25;
+            checkback(i);
             
             
             if(estatus <0)
@@ -692,7 +719,7 @@ void update()
         {
             if(par_auth[i] < 85)
             {
-                if(year -yelect > 4 || threshold + (rand()%25) < age[i])
+                if(year -yelect >= 4 || threshold + (rand()%25) < age[i])
                 {
                     par_president[i] = namegen(par_ideology[i], i);
                     if(rand()%district<par_seats[i])
@@ -707,6 +734,7 @@ void update()
                     int oldauth = par_auth[i]/10;
                     par_auth[i] = (rand()%100)+oldauth;
                     age[i] = (rand()%30)+25;
+                    checkback(i);
                 }
             } else
             {
@@ -725,6 +753,7 @@ void update()
                     int oldauth = par_auth[i]/10;
                     par_auth[i] = (rand()%100)+oldauth;
                     age[i] = (rand()%30)+25;
+                    checkback(i);
                 }
             }
         } else
@@ -744,6 +773,7 @@ void update()
                 int oldauth = par_auth[i]/10;
                 par_auth[i] = (rand()%100)+oldauth;
                 age[i] = (rand()%30)+25;
+                checkback(i);
             }
         }
         
@@ -1507,11 +1537,41 @@ void coalitionform()
     {
         if(i != gov && i != opponum && i != presnum)
         {
+            
             govpoints += 20* abs(par_ideology[gov] - par_ideology[i]);
             oppopoints += 20* abs(par_ideology[opponum] - par_ideology[i]);
             
             govpoints += abs(par_personality[gov] - par_personality[i]);
             oppopoints += abs(par_personality[opponum] - par_personality[i]);
+            
+            if(backg[par_bg[gov]] == "Pragmatist")
+            {
+                govpoints -= 50;
+            }
+            
+            if(backg[par_bg[opponum]] == "Pragmatist")
+            {
+                oppopoints -= 50;
+            }
+            
+            if(backg[par_bg[gov]] == "Strongman")
+            {
+                govpoints += 50;
+            }
+            if(backg[par_bg[opponum]] == "Strongman")
+            {
+                oppopoints += 50;
+            }
+            
+            if(backg[par_bg[i]] == "Compromiser" && backg[par_bg[opponum]] == backg[par_bg[i]] )
+            {
+                govpoints-=25;
+            }
+            
+            if(backg[par_bg[i]] == "Compromiser" && backg[par_bg[opponum]] == backg[par_bg[i]] )
+            {
+                oppopoints-=25;
+            }
             
             if(par_ideology[gov] == par_ideology[i])
             {
