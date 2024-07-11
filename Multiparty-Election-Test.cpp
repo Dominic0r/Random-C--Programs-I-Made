@@ -59,6 +59,8 @@ string unput = "";
 bool midterm = false; // if true, then there is a parliamentary election
 bool prelec = true; // if true, then there is a presidential election
 
+bool spres = false;
+
 int population = 5000000;
 
 int par_support[11] = {0,0,0,0,0,0,0,0,0,0};
@@ -89,6 +91,8 @@ string preshistory[100];
 int presidents =0;
 
 int govcomp[11] = {0,0,0,0,0,0,0,0,0,0};
+
+int rempres = 0;
 
 
 string par_president[11] = {"","","","","","","","","",""};
@@ -363,7 +367,7 @@ void setup()
         par_support[i] = (rand()%100)+25;
         competence[i] = (rand()%10)-5;
         par_auth[i] = rand()%100;
-        age[i] = (rand()%30)+25;
+        age[i] = (rand()%30)+35;
         
         if(names[par_ideology[i]][par_name[i]] == "Independents")
         {
@@ -690,7 +694,7 @@ void update()
             par_bg[i] = rand()%8;
             foundingyear[i] = year;
             pp[i] =0;
-            age[i] = (rand()%30)+25;
+            age[i] = (rand()%30)+35;
             checkback(i);
             
             if(names[par_ideology[i]][par_name[i]] == "Independents")
@@ -735,10 +739,10 @@ void update()
         int threshold =0;
         if(par_auth[i] >= 85)
         {
-            threshold = 75;
+            threshold = 55;
         } else
         {
-            threshold =60;
+            threshold =70;
         }
         if(i == presnum)
         {
@@ -763,7 +767,7 @@ void update()
                 }
             } else
             {
-                if(threshold + (rand()%25) < age[i])
+                if(threshold + (rand()%25) < age[i] || (rand()%100)+50 < par_support_percent[i])
                 {
                     par_president[i] = namegen(par_ideology[i], i);
                     if(rand()%district<par_seats[i])
@@ -783,7 +787,7 @@ void update()
             }
         } else
         {
-            if(threshold + (rand()%25) < age[i])
+            if((rand()%100)+25 < par_support_percent[i] || threshold + (rand()%25) < age[i])
             {
                 par_president[i] = namegen(par_ideology[i], i);
                 if(rand()%district<par_seats[i])
@@ -1581,6 +1585,8 @@ void coalitionform()
             govpoints += abs(par_personality[gov] - par_personality[i]);
             oppopoints += abs(par_personality[opponum] - par_personality[i]);
             
+            
+            
             if(backg[par_bg[gov]] == "Pragmatist")
             {
                 govpoints -= 50;
@@ -1621,9 +1627,14 @@ void coalitionform()
             {
                 govpoints += 50;
             }
-            if(par_auth[presnum] > 65)
+            if(par_auth[presnum] > 85)
             {
-                govpoints-=100;
+                if(par_ideology[gov] == par_ideology[i])
+                {
+                    govpoints-=100;
+                }else{
+                    govpoints+=100;
+                }
             }
             if(govpoints <= oppopoints)
             {
@@ -2119,6 +2130,10 @@ int main()
         
         govlife =0;
         govlife = (rand()%((govcomp[presnum]/5)+1)) +((govcomp[presnum]/5)*0.25) ;
+        if(govlife > 10)
+        {
+            govlife = 10;
+        }
         if(govlife== 0)
         {
             govlife++;
@@ -2146,9 +2161,19 @@ int main()
                 govlife = (year-ly_pm)+1;
             }
         }
-        if(((rand()%100)+65 < age[presnum] || competence[presnum] <0) && rand()%100 > par_auth[presnum]+25)
+        
+        if(spres)
         {
+            spres = false;
+            presin = rempres;
+        }
+        
+        if(((rand()%100)+65 < age[presnum] || competence[presnum] <0) && rand()%100 > par_auth[presnum]+25)
+        { // rempres
+            spres = true;
+            int np = presin;
             presin = (rand()%3) +1;
+            rempres = np - presin;
             par_president[presnum] = namegen(par_ideology[presnum], presnum);
             if(rand()%district<par_seats[presnum])
             {
