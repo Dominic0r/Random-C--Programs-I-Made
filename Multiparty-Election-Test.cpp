@@ -546,7 +546,7 @@ void timeup()
 
         }
     }
-    presin =4;
+    
 }
 
 void checkrun()
@@ -2152,6 +2152,7 @@ int main()
     }
     if(!midterm)
     {
+        presin =4;
         if(presnum != pmnum)
         {
             snap = true;
