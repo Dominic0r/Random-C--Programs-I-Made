@@ -11,12 +11,12 @@
 
 using namespace std;
 
-string names[6][16]={
-    {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party", "Democratic Worker's Party", "United Progressive Movement", "National-Progressive Party", "Socialist People's Movement", "Revolutionary Peaasant Party"},
-    {"Socialist Party","Federation of Union Democrats","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party", "Progressive Socialist Party", "United Progressive Movement", "Democratic Labor Intiative", "Socialist Republicans", "Forward Party"},
-    {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","Liberal Democratic Party","National Republican Party", "National Center Party", "Stability and Unity", "National List", "Progressive Conservative Party", "Rally for Democracy"},
-    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance", "Federal Party", "United Farmer's Alliance", "Folk Party", "United Action Now!", "Constitutional Party"},
-    {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement", "Traditionalist Action Party", "New Democratic Party", "National-Progressive Party", "Folk Party", "Renewal"}
+string names[6][18]={
+    {"Communist Party","National Democratic Party","Labor, Liberty, Action","Socialist Labor Party","Labor Reform Party","Socialist United Front","Democratic Progressive Party","National Republican Party","National Congress of Unions","Worker's Party", "Democratic Worker's Party", "United Progressive Movement", "National-Progressive Party", "Socialist People's Movement", "Revolutionary Peaasant Party","Independents", "Popular Front"},
+    {"Socialist Party","Federation of Union Democrats","Greens","Social Democratic Party","Labor Party","Socialist United Front","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","National Republican Party", "Progressive Socialist Party", "United Progressive Movement", "Democratic Labor Intiative", "Socialist Republicans", "Forward Party","Independents", "Progressive Action Bloc"},
+    {"Liberal Party","Democratic Party","Progressives","Center Party","Unity Party","Democratic Progressive Party","Socialists and Democrats","Yellow and Blue Alliance","Liberal Democratic Party","National Republican Party", "National Center Party", "Stability and Unity", "National List", "Progressive Conservative Party", "Rally for Democracy", "Independents", "Unionist Party"},
+    {"Conservative Party","Liberal Democrats","Democratic Action Party","Reform Party","National Conservative Movement","Yellow and Blue Alliance","Liberal Democratic Party","Tradition and Democracy","National Republican Party","Democratic Interests Alliance", "Federal Party", "United Farmer's Alliance", "Folk Party", "United Action Now!", "Constitutional Party","Independents", "National Conservative Assembly"},
+    {"Nationalist Party","National Action","Our Land","National Unity Front","Social Reform Movement","Tradition and Democracy","National Republican Party","Patriotic Renewal Front","New Nationalism","Conservative Labor Movement", "Traditionalist Action Party", "New Democratic Party", "National-Progressive Party", "Folk Party", "Renewal","Independents", "National Tutelage Party"}
 };
 
 string ideologies[6][6] = {
@@ -52,12 +52,14 @@ int par_bg[11]= {0,0,0,0,0,0,0,0,0,0};
 
 int year = 1922;
 
+int govlife =0;
+
 string unput = "";
 
 bool midterm = false; // if true, then there is a parliamentary election
 bool prelec = true; // if true, then there is a presidential election
 
-int population = 500000;
+int population = 5000000;
 
 int par_support[11] = {0,0,0,0,0,0,0,0,0,0};
 int par_support_percent[11] = {0,0,0,0,0,0,0,0,0,0};
@@ -94,17 +96,19 @@ int yelect =year;
 int prevpres =11;
 string par_primem[11] = {"","","","","","","","","",""};
 
-int district = population/25000;
+int district = population/50000;
 
 int prime[2];
 
 int counted =0;
 
-int tot_elec = 20*district;
+int tot_elec = 5*district;
 int par_electors[11]={0,0,0,0,0,0,0,0,0,0};
 
 int ly_pres = year;
 int ly_pm = year;
+
+int npres =0;
 
 string govcoalition[11];
 int govmembers =0;
@@ -142,6 +146,8 @@ bool oneparty[11] = {false,false,false,false,false,false,false,false,false,false
 
 int foundingyear[11] = {year,year,year,year,year,year,year,year,year,year};
 
+bool snap = false;
+
 int regions =0;
 int r_dev[999];
 int avdev=0;
@@ -155,6 +161,10 @@ int govs= 0;
 int prevpm =11;
 int prevdstr =0;
 int pmyear =1920;
+
+int laspres = year;
+
+int presin =4;
 
 int dynfluence[6] = {0,0,0,0,0};
 bool underdy[11] = {false,false,false,false,false,false,false,false,false,false};
@@ -345,7 +355,7 @@ void setup()
     {
         par_ideology[i] = rand()%5;
         par_subideology[i] = rand()%5;
-        par_name[i] = rand()%15;
+        par_name[i] = rand()%17;
         par_president[i] = namegen(par_ideology[i], i);
         par_primem[i] = namegen(par_ideology[i], i);
         par_personality[i] = rand()%100;
@@ -354,6 +364,11 @@ void setup()
         competence[i] = (rand()%10)-5;
         par_auth[i] = rand()%100;
         age[i] = (rand()%30)+25;
+        
+        if(names[par_ideology[i]][par_name[i]] == "Independents")
+        {
+            par_support[i] /= 10;
+        }
         
         checkback(i);
         
@@ -461,40 +476,40 @@ void timeup()
 {
     if(parallel == false)
     {
-        if(ly_pm+5 < ly_pres+4) // if the parliamentary election is closer
+        if(ly_pm+govlife < ly_pres+presin) // if the parliamentary election is closer
         {
             midterm = true;
             prelec = false;
             
             for(int i=0;  i!=10; i++)
             {
-                age[i] += (ly_pm+5)-year;
+                age[i] += (ly_pm+govlife)-year;
             }
             
-            year = ly_pm +5;
+            year = ly_pm +govlife;
             ly_pm = year;
 
             
-        }else if(ly_pm+5> ly_pres+4) // if the presidential election is closer
+        }else if(ly_pm+govlife> ly_pres+presin) // if the presidential election is closer
         {
             midterm = false;
             prelec = true;
             
             for(int i=0;  i!=10; i++)
             {
-                age[i] += (ly_pres+4)-year;
+                age[i] += (ly_pres+presin)-year;
             }
             
-            year = ly_pres+4;
+            year = ly_pres+presin;
             ly_pres = year;
-        }else if(ly_pm+5 == ly_pres+4) // if both elections happent he same year
+        }else if(ly_pm+govlife == ly_pres+presin) // if both elections happent he same year
         {
             if(year == 1922)
             {
                 parallel = true;
                 midterm = false;
                 prelec = true;
-                year = year+4;
+                year = year+presin;
                 ly_pm = year;
                 ly_pres = year;
             } else
@@ -502,13 +517,13 @@ void timeup()
                 parallel = true;
                 midterm = true;
                 prelec = false;
-                year = year+4;
+                year = year+presin;
                 ly_pm = year;
                 ly_pres = year;
             }
             for(int i=0;  i!=10; i++)
             {
-                age[i] += 4;
+                age[i] += presin;
             }
             
         }
@@ -527,6 +542,7 @@ void timeup()
 
         }
     }
+    presin =4;
 }
 
 void checkrun()
@@ -577,6 +593,11 @@ void checkrun()
             score +=7;
         }
         
+        /*if(names[par_ideology[i]][par_name[i]] == "Independents")
+        {
+            score -=100;
+        }*/
+        
         switch(partiesincongress)
         {
             case 1: requirement = 0;
@@ -585,18 +606,16 @@ void checkrun()
                 break;
             case 3: requirement = 10;
                 break;
-            case 4:requirement = 12;
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 9: requirement = 15;
                 break;
-            case 5:requirement = 15;
-                break;
-            case 6:requirement = 17;
-                break;
-            case 7:requirement = 20;
-                break;
-            case 9: requirement = 22;
-                break;
-            default:requirement = 25;
+            default:requirement = 15;
         }
+        
+        
         
         if(score >= requirement)
         {
@@ -636,10 +655,11 @@ void update()
 {
     
     
-    tot_elec = district*20;
+    tot_elec = district*5;
     int pad = population*0.1;
     population += rand()%pad+1;
-    district = population/25000;
+    
+    district = population/50000;
     
     
     
@@ -661,7 +681,7 @@ void update()
         {
             par_ideology[i] = rand()%5;
             par_subideology[i] = rand()%5;
-            par_name[i] = rand()%15;
+            par_name[i] = rand()%17;
             par_auth[i] = rand()%100;
             par_president[i] = namegen(par_ideology[i], i);
             par_primem[i] = namegen(par_ideology[i], i);
@@ -672,6 +692,11 @@ void update()
             pp[i] =0;
             age[i] = (rand()%30)+25;
             checkback(i);
+            
+            if(names[par_ideology[i]][par_name[i]] == "Independents")
+            {
+                par_support[i] /= 10;
+            }
             
             
             if(estatus <0)
@@ -1346,7 +1371,8 @@ void preselec()
             }
         }
         int remove =0;
-        remove = (rand()%20)+1;
+        int cmv = (tot_elec*0.01)+1;
+        remove = (rand()%cmv)+1;
         if(all >0)
         {
             remove += remove *all;
@@ -1428,31 +1454,24 @@ void seatdistrib()
     for(int i=0;i!=10;i++){votedivide[i]=par_votes[i];}
     int winnum =0;
     int winvotes =0;
+    int twond =10;
+    int twondscore =0;
     int wins = 10;
     int windiv =0;
     while(remdists >0)
     {
         for(int i=0; i!= 10;i++)
         {
-            if(par_auth[presnum] <85)
-            {
                 if(votedivide[i] > winvotes)
                 {
+                    if(votedivide[winnum] >= twondscore)
+                    {
+                        twondscore = votedivide[winnum];
+                        twond = winnum;
+                    }
                     winvotes = votedivide[i];
                     winnum = i;
                 }
-            } else
-            {
-                if(votedivide[i] > winvotes && par_ideology[i] == par_ideology[presnum] && (par_ideology[presnum] ==4 || par_ideology[presnum] ==0))
-                {
-                    winvotes = votedivide[i];
-                    winnum = i;
-                } else if (votedivide[i] > winvotes && (par_ideology[presnum] <4 || par_ideology[presnum] >0))
-                {
-                    winvotes = votedivide[i];
-                    winnum = i;
-                }
-            }
         }
         
         tickremove = rand()%((par_votes_percent[winnum]/10)+1);
@@ -1476,11 +1495,29 @@ void seatdistrib()
         string debug_input = "";
         cin>> debug_input;*/
         remdists-=tickremove;
+        if(tickremove/2 == 0)
+        {
+            remdists -= 1;
+        }else{
+            remdists-=tickremove/2;
+        }
         par_seats[winnum]+=tickremove;
+        if(twond == 10)
+        {
+            twond = rand()%10;
+        }
+        if(tickremove/2 == 0)
+        {
+            par_seats[twond] += 1;
+        }else{
+            par_seats[twond] += tickremove /2;
+        }
+        
         votedivide[winnum] = par_votes[winnum]/ (points[winnum]+1);
         points[winnum]++;
         winvotes=0;
-        winnum=0;
+        twond = 10;
+        winnum=10;
     }
     for(int i=0; i!=10; i++)
     {
@@ -1973,6 +2010,7 @@ int main()
     //cout << "F";
     if(prelec)
     {
+        laspres = year;
         preselec();
     }
     if(midterm)
@@ -2066,15 +2104,68 @@ int main()
             cout <<"Pro-President Government" << endl;
         } else
         {
-            cout <<  "Opposition Government" << endl;;
+            cout <<  "Opposition Government" << endl;
         }
+        goto kami;
+    } else if (unput == "debugeco")
+    {
+        cout << "Economy: " << estatus << endl;
         goto kami;
     }
     
+    
     if(midterm)
     {
+        
+        govlife =0;
+        govlife = (rand()%((govcomp[presnum]/5)+1)) +((govcomp[presnum]/5)*0.25) ;
+        if(govlife== 0)
+        {
+            govlife++;
+            
+            snap = true;
+        }
+        if(snap)
+        {
+            snap = false;
+            govlife = 3;
+        }
+        
+        
+        
         checkrun();
     }
+    if(!midterm)
+    {
+        if(presnum != pmnum)
+        {
+            snap = true;
+            govlife /=2;
+            if(ly_pm+govlife < year)
+            {
+                govlife = (year-ly_pm)+1;
+            }
+        }
+        if(((rand()%100)+65 < age[presnum] || competence[presnum] <0) && rand()%100 > par_auth[presnum]+25)
+        {
+            presin = (rand()%3) +1;
+            par_president[presnum] = namegen(par_ideology[presnum], presnum);
+            if(rand()%district<par_seats[presnum])
+            {
+                par_president[presnum] = par_primem[presnum];
+            }
+            pp[presnum] =pp[presnum]/2;
+            par_personality[presnum] = rand()%100;
+            par_subideology[presnum] = rand()%5;
+            competence[presnum] = (rand()%10)-5;
+            par_bg[presnum] = rand()%8;
+            int oldauth = par_auth[presnum]/10;
+            par_auth[presnum] = (rand()%100)+oldauth;
+            age[presnum] = (rand()%30)+25;
+            checkback(presnum);
+        }
+    }
+    
     if(parallel == false)
     {
         eco();
