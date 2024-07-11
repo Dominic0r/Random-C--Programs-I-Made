@@ -513,7 +513,7 @@ void timeup()
                 parallel = true;
                 midterm = false;
                 prelec = true;
-                year = year+presin;
+                year = year+4;
                 ly_pm = year;
                 ly_pres = year;
             } else
@@ -521,7 +521,7 @@ void timeup()
                 parallel = true;
                 midterm = true;
                 prelec = false;
-                year = year+presin;
+                year = year+4;
                 ly_pm = year;
                 ly_pres = year;
             }
@@ -2153,7 +2153,7 @@ int main()
     }
     if(prelec)
     {
-        if(presnum != pmnum)
+        /*if(presnum != pmnum)
         {
             snap = true;
             govlife /=2;
@@ -2161,13 +2161,14 @@ int main()
             {
                 govlife = (year-ly_pm)+1;
             }
-        }
+        }*/
         
         
         
         
         if(((rand()%100)+65 < age[presnum] || competence[presnum] <0) && rand()%100 > par_auth[presnum]+25)
         { // rempres
+            year+= rand()%4;
             par_president[presnum] = namegen(par_ideology[presnum], presnum);
             if(rand()%district<par_seats[presnum])
             {
@@ -2182,6 +2183,19 @@ int main()
             par_auth[presnum] = (rand()%100)+oldauth;
             age[presnum] = (rand()%30)+25;
             checkback(presnum);
+            
+            
+            string yelstring = to_string(yelect), yestring = to_string(year);
+            preshistory[presidents] = president + " (" + names[par_ideology[presnum]][par_name[presnum]] + " | " +pressideo + " | " + presbg+ ") " + yelstring + " - " + yestring;
+            prevpres = presnum;
+            presidents++;
+            pressideo = ideologies[par_ideology[pmnum]][par_subideology[pmnum]];
+            presbg = backg[par_bg[pmnum]];
+            yelect = year;
+            
+            string yelstring1 = to_string(govyear);
+            ghistory[govs] = president + " - " + primem + " Government (" + yelstring1 + " - " + yestring + ") - ";
+            
             presnum = pmnum;
         }
     }
