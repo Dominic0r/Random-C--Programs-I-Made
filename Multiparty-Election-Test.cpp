@@ -480,7 +480,7 @@ void timeup()
 {
     if(parallel == false)
     {
-        if(ly_pm+govlife < ly_pres+presin) // if the parliamentary election is closer
+        if(ly_pm+govlife < ly_pres+4) // if the parliamentary election is closer
         {
             midterm = true;
             prelec = false;
@@ -494,19 +494,19 @@ void timeup()
             ly_pm = year;
 
             
-        }else if(ly_pm+govlife> ly_pres+presin) // if the presidential election is closer
+        }else if(ly_pm+govlife> ly_pres+4) // if the presidential election is closer
         {
             midterm = false;
             prelec = true;
             
             for(int i=0;  i!=10; i++)
             {
-                age[i] += (ly_pres+presin)-year;
+                age[i] += (ly_pres+4)-year;
             }
             
-            year = ly_pres+presin;
+            year = ly_pres+4;
             ly_pres = year;
-        }else if(ly_pm+govlife == ly_pres+presin) // if both elections happent he same year
+        }else if(ly_pm+govlife == ly_pres+4) // if both elections happent he same year
         {
             if(year == 1922)
             {
@@ -527,7 +527,7 @@ void timeup()
             }
             for(int i=0;  i!=10; i++)
             {
-                age[i] += presin;
+                age[i] += 4;
             }
             
         }
@@ -2134,25 +2134,25 @@ int main()
         {
             govlife = 10;
         }
+        if(snap)
+        {
+            snap = false;
+            govlife = 3;
+        }
         if(govlife== 0)
         {
             govlife++;
             
             snap = true;
         }
-        if(snap)
-        {
-            snap = false;
-            govlife = 3;
-        }
+        
         
         
         
         checkrun();
     }
-    if(!midterm)
+    if(prelec)
     {
-        presin =4;
         if(presnum != pmnum)
         {
             snap = true;
@@ -2163,18 +2163,11 @@ int main()
             }
         }
         
-        if(spres)
-        {
-            spres = false;
-            presin = rempres;
-        }
+        
+        
         
         if(((rand()%100)+65 < age[presnum] || competence[presnum] <0) && rand()%100 > par_auth[presnum]+25)
         { // rempres
-            spres = true;
-            int np = presin;
-            presin = (rand()%3) +1;
-            rempres = np - presin;
             par_president[presnum] = namegen(par_ideology[presnum], presnum);
             if(rand()%district<par_seats[presnum])
             {
@@ -2189,6 +2182,7 @@ int main()
             par_auth[presnum] = (rand()%100)+oldauth;
             age[presnum] = (rand()%30)+25;
             checkback(presnum);
+            presnum = pmnum;
         }
     }
     
