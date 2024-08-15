@@ -62,6 +62,9 @@ public:
     int stability = 75;
     
     int authoritarianism = 20;
+    
+    std::string issues[10] = {"Economy", "Healthcare", "Education", "Social Welfare", "Public Safety", "Defense and Security", "Infrastructure", "Immigration", "Environment", "Civil Rights"};
+    int issid[10] = {0,1,2,3,4,5,6,7,8,9};
 };
 
 class crisis{
@@ -114,47 +117,38 @@ public:
     
     int support[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     
+    int polling[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    
     int votes[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     
     int electors[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     
     int shares[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // government shares
+    
+    int policy[20][3] = {
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+        {0,0,0},
+    };
 };
 
-
-
-class elections
-{
-public:
-    
-    bool checkrun(int i)
-    {
-        party par;
-        int points = 0;
-            if(par.support[i] >= par.support[presnum]/2)
-            {
-                return true;
-            } else
-            {
-                return false;
-            }
-    }
-    
-    void preselec()
-    {
-        
-    }
-    
-    void pmelec()
-    {
-        
-    }
-    
-    void senelec()
-    {
-        
-    }
-};
 
 class pollsters
 {
@@ -170,9 +164,11 @@ public:
     int pardiv[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     int wins[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     
+    int interim[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    
     void initia()
     {
-        for(int i=0;i!=20;i++){pardiv[i] = par.support[i];}
+        for(int i=0;i!=20;i++){interim[i] = par.support[i]; pardiv[i] = interim[i]*100;}
     }
     
     void farright()
@@ -207,7 +203,7 @@ public:
                 }
             }
             pardiv[winnum] = 0;
-            pardiv[winnum] = par.support[winnum]/wins[winnum];
+            pardiv[winnum] = interim[winnum]/wins[winnum];
             
             winnum = 0;
             winvotes = 0;
@@ -260,7 +256,7 @@ public:
                 }
             }
             pardiv[winnum] = 0;
-            pardiv[winnum] = par.support[winnum]/wins[winnum];
+            pardiv[winnum] = interim[winnum]/wins[winnum];
             
             winnum = 0;
             winvotes = 0;
@@ -314,7 +310,7 @@ public:
                 }
             }
             pardiv[winnum] = 0;
-            pardiv[winnum] = par.support[winnum]/wins[winnum];
+            pardiv[winnum] = interim[winnum]/wins[winnum];
             
             winnum = 0;
             winvotes = 0;
@@ -368,7 +364,7 @@ public:
                 }
             }
             pardiv[winnum] = 0;
-            pardiv[winnum] = par.support[winnum]/wins[winnum];
+            pardiv[winnum] = interim[winnum]/wins[winnum];
             
             winnum = 0;
             winvotes = 0;
@@ -415,7 +411,7 @@ public:
                 }
             }
             pardiv[winnum] = 0;
-            pardiv[winnum] = par.support[winnum]/wins[winnum];
+            pardiv[winnum] = interim[winnum]/wins[winnum];
             
             winnum = 0;
             winvotes = 0;
@@ -432,6 +428,7 @@ public:
     
     void official()
     {
+        
         initia();
         
         do
@@ -447,7 +444,7 @@ public:
             
             wins[winnum]++;
             pardiv[winnum] = 0;
-            pardiv[winnum] = par.support[winnum]/wins[winnum];
+            pardiv[winnum] = interim[winnum]/wins[winnum];
             
             winnum = 0;
             winvotes = 0;
@@ -460,6 +457,45 @@ public:
             }
             
         }while(!isdone);
+        
+        for(int i=0; i!=20; i++)
+        {
+            par.polling[i]= pardiv[i];
+        }
+        
+    }
+};
+
+class elections
+{
+public:
+    pollsters pol;
+    bool checkrun(int i)
+    {
+        party par;
+        int points = 0;
+            if(par.support[i] >= par.support[presnum]/2)
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
+    }
+    
+    void preselec()
+    {
+       
+    }
+    
+    void pmelec()
+    {
+        
+    }
+    
+    void senelec()
+    {
+        
     }
 };
 
@@ -615,7 +651,42 @@ void disppar()
 
 void polls() // actual election polling
 {
+    pollsters pol;
+    nation nat;
+    party par;
     
+    
+    pol.official();
+    
+    int removeturn = 0;
+    int rempop = nat.population*0.75;
+    
+    int turnly = (rempop *0.05)+10;
+    
+    for(int i=0; i!=20;i++){par.votes[i]=0;}
+    
+    int personal =0;
+    
+    int curshare =0;
+    
+    while(rempop > nat.population*0.15)
+    {
+        removeturn =0;
+        
+        curshare = rand()%turnly;
+        
+        
+        
+        for(int i=0; i!=20; i++)
+        {
+            personal = ((curshare*par.polling[i])/100)+10;
+            personal = rand()%personal;
+            par.votes[i] = personal;
+            removeturn = personal;
+            personal = 0;
+        }
+        rempop -= removeturn;
+    }
 }
 
 void opinions() //opinion polling
